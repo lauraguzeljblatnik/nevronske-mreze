@@ -1,2 +1,2 @@
-# Nevronske mreze
-diplomska naloga - Usmerjene nevronske mreže z vzvratnim razširjanjem napake 
+# Nevronske mreže
+Diplomska naloga - Usmerjene nevronske mreže z vzvratnim razširjanjem napake 

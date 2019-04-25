@@ -46,7 +46,7 @@ let delta_output d y =
 	else (
 		let e = Array.make d0 0. in 
 		for i = 0 to d0-1 do
-			e.(i) <- (d.(i) -. y.(i))*. d_sigmoid y.(i)
+			e.(i) <- -.(d.(i) -. y.(i))*. d_sigmoid y.(i)
 		done;
 	e
 	)
@@ -57,12 +57,12 @@ let delta_hidden w_out a_m d_out =
 	let a = Array.length a_m in
 	let d_0 = Array.length d_out in 
 	let e = Array.make a 0. in
-	for i = 0 to a do
-		let sum = 0.0 in
-		for j = 0 to d_0 do
-			sum = sum +. w_out.(i).(j)*.d_out.(j)
+	for i = 0 to a -1 do
+		let sum = ref 0. in
+		for j = 0 to d_0 -1 do
+			sum := !sum +. w_out.(j).(i) *. d_out.(j)
 		done;
-		e.(i) <- (d_sigmoid a_m.(i)) *. sum
+		e.(i) <- (d_sigmoid a_m.(i)) *. !sum
 	done;
 	e
 
@@ -70,9 +70,9 @@ let delta_hidden w_out a_m d_out =
 let update_weights w rate delta output =
 	let d_0 = Array.length delta and
 		out_0 = Array.length output in
-	for i = 0 to d_0 do
-		for j = 0 to out_0 do
-			w.(i).(j) <- w.(i).(j) +. rate *. delta.(i) *. output.(j)
+	for i = 0 to d_0 -1 do
+		for j = 0 to out_0 -1 do
+			w.(i).(j) <- w.(i).(j) -. rate *. delta.(i) *. output.(j)
 		done;
 	done;
 	w
@@ -83,18 +83,21 @@ let update_weights w rate delta output =
 let x = [| 1. ; 1.; 1.; 1.|]
 (*learning rate*)
 let rate = 0.5
-(*željen izhod*)
+(*želen izhod*)
 let d =[|0.191; 0.25|]
-(*št nevronov v prvem sloju*)
+(*št nevronov v prvem hidden sloju*)
 let layer1 = 3
+
 
 let w1 = rand_weights layer1 (Array.length x) 5.
 let w2 = rand_weights (Array.length d) layer1 5.
 
-let l1 = combination_f x w1
+let l = combination_f x w1
 let l1 = activation_layer l1
 let l2 = combination_f l1 w2
 let y = activation_layer l2  
 let e_o = delta_output d y
-
+let w2_new = update_weights w2 rate e_o l1
+let e_hidden = delta_hidden w2_new l1 e_o
+let w1_new = update_weights w1 rate e_hidden x
 

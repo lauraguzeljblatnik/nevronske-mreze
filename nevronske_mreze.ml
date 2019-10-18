@@ -27,7 +27,7 @@ let max_el arr = Array.fold_left max arr.(0) arr
 (*!!!!!!!!!!TODO - zgleda ok - preveri če dela prav - brt, men se zdi ok*)
 (*funkcija, ki ustvari seznam matrik uteži iz danega vektorja, ki opisuje topologijo nevronske mreže
 aka število nevronov po slojih, bound je zgornja meja za uteži - spodnja meja je 0.*)
- let  create_weights_matrix network_topology bound =
+let create_weights_matrix network_topology bound =
 	let n = (Array.length network_topology) - 1 in
 	let weights = Array.make n [||] in
 	for i = 0 to n-1 do
@@ -35,7 +35,7 @@ aka število nevronov po slojih, bound je zgornja meja za uteži - spodnja meja 
 	done;
 	weights
 	
-(*funkcija, ki vzame array topologija_mreze in vhod x in iz tega ustvari matriko, ki predstavlja nevrone v mreži.
+(*funkcija, ki vzame array topologija_mreze in iz tega ustvari matriko, ki predstavlja nevrone v mreži.
 Ima velikost mxn, kjer je m št slojev in n max št nevronov v sloju*)
 let initialize_network network_topology =	
 	let layers_n = Array.length network_topology and
@@ -105,7 +105,7 @@ let update_weights w rate delta output =
 (*funkcija, ki sprejme en učni primer in ustrezno popravi uteži*)
 (*????? a res rabiš podat x, če je x že v inicialize network *)	
 (*zdi se mi da dela, kako to preverit je vprašanje*)
-let learning_example x d network weights rate bound = 
+let learning_example x d network weights rate = 
 	let n = Array.length network in
 		network.(0) <- x;
    	for i = 0 to n-2 do
@@ -128,11 +128,24 @@ funkciji podamo:
  - stopnjo učenja rate
  - funkcija ustvari matrike 
  *)	
-let train_network examples network_topology rate = 
+let train_network examples network_topology rate bound = 
 	let n = number_of_examples in (*stevilo ucnih primerov, dobis is csv*)
 	let input_n = len_onput_vector in
-	
-	
+	let network = initialize_network network_topology in 
+	let weights = create_weights_matrix network_topology bound in
+	for i = 0 to n-1 do
+		weights <- learning_example example_input.(i) example_outpit(i) network weights rate
+	done;
+	weights
+
+(*daš notri uteži in topology in input in vrne napoved*)	
+let predict input network weights =
+	let n = Array.length network in
+		network.(0) <- x;
+   	for i = 0 to n-2 do
+		network.(i+1) <- activation_layer( combination_f network.(i) weights.(i))
+	done;
+	netwotk.(n-1)
 	
 
 
@@ -169,7 +182,7 @@ let w1_new = update_weights w1 rate e_hidden x
 let neurons = initialize_network network_topology
 let weights = create_weights_matrix network_topology 5.
 
-let test = learning_example x d neurons weights rate 1.
+let test = learning_example x d neurons weights rate 
 
 
 

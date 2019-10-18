@@ -17,7 +17,6 @@ let activation_layer layer =
 (*ustvari float matriko z naključnimi utežmi velikosti nxm,
  elementi so manjši od bound,
  m je št nevronov v prejšnjem sloju, n je št nevronov v tem sloju*)	
- (* WUT, TA FUNKCIJA JE ČUDNA, ZAKAJ NI ARRAY:MAKE_MATRIX?????? ->ker ne moreš inicializirat z rand*)
 let rand_weights n m bound =
 	Array.init n
         (fun _ -> Array.init m (fun _ -> Random.float bound))
@@ -25,7 +24,7 @@ let rand_weights n m bound =
 (*funkcija, ki vrne največji element v arrayu*)		
 let max_el arr = Array.fold_left max arr.(0) arr
 	
-(*!!!!!!!!!!TODO - zgleda ok - preveri če dela prav*)
+(*!!!!!!!!!!TODO - zgleda ok - preveri če dela prav - brt, men se zdi ok*)
 (*funkcija, ki ustvari seznam matrik uteži iz danega vektorja, ki opisuje topologijo nevronske mreže
 aka število nevronov po slojih, bound je zgornja meja za uteži - spodnja meja je 0.*)
  let  create_weights_matrix network_topology bound =
@@ -36,17 +35,12 @@ aka število nevronov po slojih, bound je zgornja meja za uteži - spodnja meja 
 	done;
 	weights
 	
-
-	
 (*funkcija, ki vzame array topologija_mreze in vhod x in iz tega ustvari matriko, ki predstavlja nevrone v mreži.
 Ima velikost mxn, kjer je m št slojev in n max št nevronov v sloju*)
-let initialize_network input_array network_topology =	
+let initialize_network network_topology =	
 	let layers_n = Array.length network_topology and
 		max_layer = max_el network_topology in
 	let	network = Array.make_matrix layers_n max_layer 0. in 
-		for i = 0 to (Array.length input_array) - 1 do
-			network.(0).(i) <- input_array.(i)
-		done;
 	network
 	
 (*funkcija kombinacije za sloj*)
@@ -108,26 +102,38 @@ let update_weights w rate delta output =
 	done;
 	w
 
-(*funkcija, ki sprejme en učni primer in ustrezno popravi uteži*)	
-let learning_example x d network_topology rate bound = 
-	let weights = create_weights_matrix network_topology bound in
-	let network = initialize_network x network_topology in 
-	let n = Array.length network_topology in
-	for i = 0 to n-2 do
+(*funkcija, ki sprejme en učni primer in ustrezno popravi uteži*)
+(*????? a res rabiš podat x, če je x že v inicialize network *)	
+(*zdi se mi da dela, kako to preverit je vprašanje*)
+let learning_example x d network weights rate bound = 
+	let n = Array.length network in
+		network.(0) <- x;
+   	for i = 0 to n-2 do
 		network.(i+1) <- activation_layer( combination_f network.(i) weights.(i))
-	done;
-	network
+	done; 
+	let delta = ref (delta_output d network.(n-1)) in
+	for i = 0 to n-2 do
+		weights.(n-2-i) <- update_weights weights.(n-2-i) rate !delta network.(n-2-i);
+		delta := (delta_hidden weights.(n-2-i) network.(n-2-i) network.(n-1-i)); (* TODO *) 
+	done; 
+	weights
+	
 	(*zaenkrat aktivira nevrone, to do je backprop oz popravi uteži*)
 	
 	
 (*
 funkciji podamo:
- - vrednosti vhodnih nevronov x
- - vrednosti izhodnih nevronov d
+ - file s podatki examples 
  - seznam s št. nevronov po slojih n_neurons
  - stopnjo učenja rate
+ - funkcija ustvari matrike 
  *)	
-let train_network x d n_neurons rate = ()
+let train_network examples network_topology rate = 
+	let n = number_of_examples in (*stevilo ucnih primerov, dobis is csv*)
+	let input_n = len_onput_vector in
+	
+	
+	
 
 
 
@@ -160,10 +166,10 @@ let w2_new = update_weights w2 rate e_o l1
 let e_hidden = delta_hidden w2_new l1 e_o
 let w1_new = update_weights w1 rate e_hidden x
 (*let max_nevron = max_el network_topology*)
-let neurons = initialize_network x network_topology
+let neurons = initialize_network network_topology
 let weights = create_weights_matrix network_topology 5.
 
-let test = learning_example x d network_topology 0.5 5.
+let test = learning_example x d neurons weights rate 1.
 
 
 

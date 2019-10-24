@@ -116,7 +116,7 @@ let learning_example x d network weights rate =
 		weights.(n-2-i) <- update_weights weights.(n-2-i) rate !delta network.(n-2-i);
 		delta := (delta_hidden weights.(n-2-i) network.(n-2-i) network.(n-1-i)); (* TODO *) 
 	done; 
-	weights
+	weights;
 	
 	(*zaenkrat aktivira nevrone, to do je backprop oz popravi uteži*)
 	
@@ -128,13 +128,37 @@ funkciji podamo:
  - stopnjo učenja rate
  - funkcija ustvari matrike 
  *)	
-let train_network examples network_topology rate bound = 
-	let n = number_of_examples in (*stevilo ucnih primerov, dobis is csv*)
-	let input_n = len_onput_vector in
+ 
+#load "str.cma";; 
+
+let split_lane = Str.split (Str.regexp ",")
+
+let read_file filename = 
+let lines = ref [] in
+let chan = open_in filename in
+let header = input_line chan in 
+try
+  for i=0 to 10; do
+  let line = input_line chan in
+    lines := split_lane line :: !lines
+  done; List.rev !lines
+with End_of_file ->
+  close_in chan;
+  List.rev !lines ;; 
+ 
+let train_network examples_file network_topology rate bound = 
+	let examples = read_file examples_file in
+	let n = (List.length examples)*2/3 in (*2/3 vseh ucnih primerov, dobis is csv*)
+	let input_n = network_topology.(0) in
 	let network = initialize_network network_topology in 
 	let weights = create_weights_matrix network_topology bound in
 	for i = 0 to n-1 do
-		weights <- learning_example example_input.(i) example_outpit(i) network weights rate
+		let example = List.nth examples i in 
+		let pom = ref (learning_example  [|1.; 0.; 1.; 1.; 1.; 0.; 2.; 0.175833; 0.176771; 0.5375; 0.194017|] [|117.; 883.; 1000.|] network weights rate) in
+		for i = 0 to (Array.length weights)-1 do
+			weights.(i) <- !pom.(i);
+		done;
+		(* weights <- pom; *)
 	done;
 	weights
 
@@ -185,6 +209,6 @@ let weights = create_weights_matrix network_topology 5.
 let test = learning_example x d neurons weights rate 
 
 
-
+let test1 = train_network "day.csv" [|11;6;8;15;3|] 0.5 1.
 
 

@@ -1,5 +1,7 @@
 (* NEURAL NETWORK*)
 
+#use "csv_ocaml.ml";;
+
 (*najprej definirajmo nekaj funkcij*)
 
 (*aktivacijska funkcija za posamezen perceptron*)
@@ -129,27 +131,8 @@ funkciji podamo:
  - funkcija ustvari matrike 
  *)	
  
-#load "str.cma";; 
-
-let split_lane = Str.split (Str.regexp ",")
-
-let read_file filename = 
-let lines = ref [] in
-let chan = open_in filename in
-let header = input_line chan in 
-try
-  for i=0 to 10; do
-  let line = input_line chan in
-    lines := split_lane line :: !lines
-  done; List.rev !lines
-with End_of_file ->
-  close_in chan;
-  List.rev !lines ;; 
- 
-let train_network examples_file network_topology rate bound = 
-	let examples = read_file examples_file in
+let train_network input_array output_array network_topology rate bound = 
 	let n = (List.length examples)*2/3 in (*2/3 vseh ucnih primerov, dobis is csv*)
-	let input_n = network_topology.(0) in
 	let network = initialize_network network_topology in 
 	let weights = create_weights_matrix network_topology bound in
 	for i = 0 to n-1 do
@@ -165,14 +148,12 @@ let train_network examples_file network_topology rate bound =
 (*daš notri uteži in topology in input in vrne napoved*)	
 let predict input network weights =
 	let n = Array.length network in
-		network.(0) <- x;
+		network.(0) <- input;
    	for i = 0 to n-2 do
 		network.(i+1) <- activation_layer( combination_f network.(i) weights.(i))
 	done;
-	netwotk.(n-1)
+	network.(n-1)
 	
-
-
 
 
 	

@@ -4,9 +4,20 @@
 
 (*najprej definirajmo nekaj funkcij*)
 
+let lay = test_examples.(3)
+
+let top = [|11;5;3|]
+
+let w = [|[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
+[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
+[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
+[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
+[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|]|]
+
 (*aktivacijska funkcija za posamezen perceptron*)
 let sigmoid perceptron =
 	1. /. (1. +. exp(-. perceptron))
+		
 
 (*odvod sigmoide*)
 let d_sigmoid output =
@@ -15,6 +26,7 @@ let d_sigmoid output =
 (*aktivacijska funkcija za sloj*)
 let activation_layer layer =
 	Array.map sigmoid layer
+	
 
 (*ustvari float matriko z naključnimi utežmi velikosti nxm,
  elementi so manjši od bound,
@@ -26,7 +38,7 @@ let rand_weights n m bound =
 (*funkcija, ki vrne največji element v arrayu*)		
 let max_el arr = Array.fold_left max arr.(0) arr
 	
-(*!!!!!!!!!!TODO - zgleda ok - preveri če dela prav - brt, men se zdi ok*)
+(*!!!!!!!!!!TODO - zgleda ok - pre veri če dela prav - brt, men se zdi ok*)
 (*funkcija, ki ustvari seznam matrik uteži iz danega vektorja, ki opisuje topologijo nevronske mreže
 aka število nevronov po slojih, bound je zgornja meja za uteži - spodnja meja je 0.*)
 let create_weights_matrix network_topology bound =
@@ -36,6 +48,8 @@ let create_weights_matrix network_topology bound =
 		weights.(i) <- rand_weights network_topology.(i+1) network_topology.(i) bound
 	done;
 	weights
+	
+let wei = create_weights_matrix top 1.0	
 	
 (*funkcija, ki vzame array topologija_mreze in iz tega ustvari matriko, ki predstavlja nevrone v mreži.
 Ima velikost mxn, kjer je m št slojev in n max št nevronov v sloju*)
@@ -61,9 +75,9 @@ let combination_f layer weights =
 	comb
 	)
 
-let output_matrix network weights = ()
 
-
+let out1 = test_out.(1);;	
+	
 (*izračuna napako med dobljenim in želenim rezultatom, vrne vektor razlik*)	
 (*d je to kar hočeš, y to kar mreža dobi*)
 let delta_output d y =
@@ -73,7 +87,7 @@ let delta_output d y =
 	else (
 		let e = Array.make d0 0. in 
 		for i = 0 to d0-1 do
-			e.(i) <- -.(d.(i) -. y.(i))*. d_sigmoid y.(i)
+			e.(i) <- -.(d.(i) -. y.(i))*. (d_sigmoid y.(i))
 		done;
 	e
 	)
@@ -118,7 +132,7 @@ let learning_example x d network weights rate =
 		weights.(n-2-i) <- update_weights weights.(n-2-i) rate !delta network.(n-2-i);
 		delta := (delta_hidden weights.(n-2-i) network.(n-2-i) network.(n-1-i)); (* TODO *) 
 	done; 
-	weights;
+	weights
 	
 	(*zaenkrat aktivira nevrone, to do je backprop oz popravi uteži*)
 	
@@ -131,22 +145,26 @@ funkciji podamo:
  - funkcija ustvari matrike 
  *)	
  
-let train_network input_array output_array network_topology rate bound = 
-	let n = (List.length examples)*2/3 in (*2/3 vseh ucnih primerov, dobis is csv*)
+ let train_network input_array output_array network_topology rate bound = 
 	let network = initialize_network network_topology in 
 	let weights = create_weights_matrix network_topology bound in
+	let n = Array.length input_array in 
 	for i = 0 to n-1 do
-		let example = List.nth examples i in 
-		let pom = ref (learning_example  [|1.; 0.; 1.; 1.; 1.; 0.; 2.; 0.175833; 0.176771; 0.5375; 0.194017|] [|117.; 883.; 1000.|] network weights rate) in
+		let pom = ref (learning_example  input_array.(i) output_array.(i) network weights rate) in
 		for i = 0 to (Array.length weights)-1 do
 			weights.(i) <- !pom.(i);
 		done;
 		(* weights <- pom; *)
 	done;
-	weights
+	weights 
+
+let top = [|11;5;3|]
+	
+let trained_wheights = train_network input out top 0.5 1.	
 
 (*daš notri uteži in topology in input in vrne napoved*)	
-let predict input network weights =
+let predict input network_topology weights =
+	let network = initialize_network network_topology in
 	let n = Array.length network in
 		network.(0) <- input;
    	for i = 0 to n-2 do
@@ -155,9 +173,10 @@ let predict input network weights =
 	network.(n-1)
 	
 
+let prediction = predict test_examples.(3) top trained_wheights
 
-	
-(*TEST*)
+
+(* (*TEST*)
 
 (*vhodni podatki*)
 let x = [| 1. ; 1.; 1.; 1.|]
@@ -187,9 +206,9 @@ let w1_new = update_weights w1 rate e_hidden x
 let neurons = initialize_network network_topology
 let weights = create_weights_matrix network_topology 5.
 
-let test = learning_example x d neurons weights rate 
+let test = learning_example x d neurons weights rate  *)
 
 
-let test1 = train_network "day.csv" [|11;6;8;15;3|] 0.5 1.
+
 
 

@@ -4,15 +4,19 @@
 
 (*najprej definirajmo nekaj funkcij*)
 
-let lay = test_examples.(3)
+(* let lay = test_examples.(3);;
 
-let top = [|11;5;3|]
+let out_lay = test_out.(3);;	 *)
+
+
+(* let top1 = [|3;10;2;12;3|];; *)
+
 
 let w = [|[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
 [|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
 [|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
 [|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
-[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|]|]
+[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|]|];;
 
 (*aktivacijska funkcija za posamezen perceptron*)
 let sigmoid perceptron =
@@ -49,7 +53,6 @@ let create_weights_matrix network_topology bound =
 	done;
 	weights
 	
-let wei = create_weights_matrix top 1.0	
 	
 (*funkcija, ki vzame array topologija_mreze in iz tega ustvari matriko, ki predstavlja nevrone v mreži.
 Ima velikost mxn, kjer je m št slojev in n max št nevronov v sloju*)
@@ -76,7 +79,6 @@ let combination_f layer weights =
 	)
 
 
-let out1 = test_out.(1);;	
 	
 (*izračuna napako med dobljenim in želenim rezultatom, vrne vektor razlik*)	
 (*d je to kar hočeš, y to kar mreža dobi*)
@@ -145,6 +147,8 @@ funkciji podamo:
  - funkcija ustvari matrike 
  *)	
  
+ 
+ 
  let train_network input_array output_array network_topology rate bound = 
 	let network = initialize_network network_topology in 
 	let weights = create_weights_matrix network_topology bound in
@@ -157,10 +161,35 @@ funkciji podamo:
 		(* weights <- pom; *)
 	done;
 	weights 
-
-let top = [|11;5;3|]
 	
-let trained_wheights = train_network input out top 0.5 1.	
+let train_with_input_weights input_array output_array network_topology rate bound weights =
+	let network = initialize_network network_topology in 
+	let n = Array.length input_array in 
+	for i = 0 to n-1 do
+		let pom = ref (learning_example  input_array.(i) output_array.(i) network weights rate) in
+		for i = 0 to (Array.length weights)-1 do
+			weights.(i) <- !pom.(i);
+		done;
+		(* weights <- pom; *)
+	done;
+	weights 
+
+
+let top1 = [|1;10;1|];;
+
+let wei =   [|[|[|0.76594695592428386|]; [|-0.0287914411528156|];
+      [|-0.12863740799826928|]; [|0.649951111889334|];
+      [|-0.37240440413099885|]; [|1.9318063496133289|];
+      [|0.66085046029785544|]; [|1.9867981411519844|];
+      [|-0.10306741622833798|]; [|1.7239153258873936|]|];
+    [|[|-1.339577207198831; -0.95478141399598282; -0.87221932009666459;
+        -1.2374381676241106; -0.822782238706887; -1.6181914776335191;
+        -1.3169744816251547; -1.6853794283881924; -1.0685219023423334;
+        -1.5259079504420299|]|]|] ;;
+		
+let trained_weights1 = train_with_input_weights input out top1 10. 1.0 wei
+	
+let trained_weights = train_network input out top1 10. 1.0
 
 (*daš notri uteži in topology in input in vrne napoved*)	
 let predict input network_topology weights =
@@ -173,8 +202,14 @@ let predict input network_topology weights =
 	network.(n-1)
 	
 
-let prediction = predict test_examples.(3) top trained_wheights
+let prediction = predict test_examples.(100) top1 trained_weights
 
+let prediction1 = predict test_examples.(100) top1 trained_weights1
+
+let it_should_be = test_examples.(100)
+
+let error = prediction.(0) -. it_should_be.(0)
+let error1 = prediction1.(0) -. it_should_be.(0)
 
 (* (*TEST*)
 

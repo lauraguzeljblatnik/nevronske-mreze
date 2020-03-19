@@ -1,0 +1,103 @@
+\documentclass[mat1]{fmfdelo}
+% \documentclass[fin1]{fmfdelo}
+% \documentclass[isrm1]{fmfdelo}
+% \documentclass[mat2]{fmfdelo}
+% \documentclass[fin2]{fmfdelo}
+% \documentclass[isrm2]{fmfdelo}
+
+% naslednje ukaze ustrezno napolnite
+\avtor{Laura Guzelj Blatnik}
+
+\naslov{Nevronske mreže z vzvratnim razširjanjem napak v funkcijskem programskem jeziku}
+\title{Angleški prevod slovenskega naslova dela}
+
+% navedite ime mentorja s polnim nazivom: doc.~dr.~Ime Priimek,
+% izr.~prof.~dr.~Ime Priimek, prof.~dr.~Ime Priimek
+% uporabite le tisti ukaz/ukaze, ki je/so za vas ustrezni
+\mentor{prof.~dr.~Ljupčo Todorovski}
+% \mentorica{}
+ \somentor{asist.~dr.~Aljaž Osojnik}
+% \somentorica{}
+% \mentorja{}{}
+% \mentorici{}{}
+
+\letnica{2020} % leto diplome
+
+%  V povzetku na kratko opišite vsebinske rezultate dela. Sem ne sodi razlaga organizacije dela --
+%  v katerem poglavju/razdelku je kaj, pač pa le opis vsebine.
+\povzetek{}
+
+%  Prevod slovenskega povzetka v angleščino.
+\abstract{}
+
+% navedite vsaj eno klasifikacijsko oznako --
+% dostopne so na www.ams.org/mathscinet/msc/msc2010.html
+\klasifikacija{}
+\kljucnebesede{} % navedite nekaj ključnih pojmov, ki nastopajo v delu
+\keywords{} % angleški prevod ključnih besed
+
+\zapisiMetaPodatke  % poskrbi za metapodatke in veljaven PDF/A-1b standard
+
+% aktivirajte pakete, ki jih potrebujete
+% \usepackage{tikz}
+
+% za številske množice uporabite naslednje simbole
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\C}{\mathbb C}
+\newcommand{\Q}{\mathbb Q}
+
+% matematične operatorje deklarirajte kot take, da jih bo Latex pravilno stavil
+% \DeclareMathOperator{\conv}{conv}
+
+% vstavite svoje definicije ...
+%  \newcommand{}{}
+
+\begin{document}
+
+\section{Uvod}
+
+Človeški možgani so kompleksen organ predvsem zaradi neštrtih funkcij, ki jih opravljajo. In zgolj vprašanje časa je bilo, kdaj bodo znanstveniki skoraj neskončne zmožnosti možganov prenesli v računalništvo. Ko so poskušali idejo uresničiti, so si predvsem želeli strukture, ki se bo - podobno kot možgani - sposobna učiti, odzivati na sprememe in prepoznati neznane situacije. Tako se je v polovici prejšnjega stoletja rodila ideja o umetnih nevronskih mrežah. 
+
+Do danes so umetne nevronske mreže že močno napredovale in v nekaterih lastnostih celo prekašajo možgane. Kljub temu so možgani sposobni masrcičesa, česar računalniki ne bodo nikoli.
+
+Diplomska naloga se poglobi v nevronske mreže z vzvratnim razširjanjem napake. Za konec pa sem nevronsko mrežo tudi implementirala s pomočjo funkcijskega programskega jezika OCaml. Funkcijsko programiranje...
+
+
+
+\section{Nevronske mreže}
+
+\subsection{Lastnosti nevronskih mrež}
+
+\subsection{Uporaba nevronskih mrež}
+
+\section{Učenje}
+Za učenje nevronskih mrež obstaja veliko različnih pravil. V svoji diplomski nalogi sem se osredotočila na posplošeno pravilo delta oziroma vzvratno razširjanje napake. 
+\subsection{Ideja}
+Za vzvratnim razširjanjem napake stoji povsem preprosta ideja. Najprej uteži poljubno nastavimo, paziti moramo le, da vseh vrednosti ne nastavimo na $0$.
+\subsection{Vzvratno razširjanje napake}
+Vzemimo splošen večsojen perceptron z $X_{N_X}$ nevroni v vhodnem sloju in $Y_{N_Y}$ nevroni v izhodnem sloju. Nevronska mreža naj sestoji iz $m$ skritih slojev, $m>0$, vsak skriti sloj pa naj vsabuje $N_k$ nevronov, kjer velja $1\leq k \leq m$. Nevrone v skritih slojih označimo sledeče: $H_{ij}$, kjer število $i$ ponazarja sloj v katerem se nevron nahaja, število $j$ pa zaporedno številko nevrona v tem sloju. 
+
+\section{Funkcijski programski jezik OCaml}
+
+\section{Praktični del}
+
+\section{Zaključek}
+
+\section*{Slovar strokovnih izrazov}
+
+\geslo{}{}
+\geslo{}{}
+
+% seznam uporabljene literature
+\begin{thebibliography}{99}
+
+\bibitem{https://www.researchgate.net/publication/266396438_A_Gentle_Introduction_to_Backpropagation}
+
+%\bibitem{}
+
+\end{thebibliography}
+
+\end{document}
+

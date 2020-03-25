@@ -23,13 +23,29 @@ let sigmoid perceptron =
 	1. /. (1. +. exp(-. perceptron))
 		
 
-(*odvod sigmoide*)
+(*odvod sigmoide za posamezen izhodni perceptron*)
 let d_sigmoid output =
 	(output)*.( 1. -. output)  
 
 (*aktivacijska funkcija za sloj*)
 let activation_layer layer =
 	Array.map sigmoid layer
+	
+(*funkcija kombinacije za sloj*)
+let combination_f layer weights = 
+	let w1 = Array.length weights.(0) and
+		w2 = Array.length weights and
+		l = Array.length layer in
+	if  w1 <> l then failwith "incompatible matrices!"
+	else(
+		let comb = Array.make w2 0. in
+		for i = 0 to w2-1 do
+			for j = 0 to w1-1 do
+				comb.(i) <- comb.(i) +. weights.(i).(j) *. layer.(j)
+			done;
+		done;
+	comb
+	)
 	
 
 (*ustvari float matriko z naključnimi utežmi velikosti nxm,
@@ -62,22 +78,6 @@ let initialize_network network_topology =
 	let	network = Array.make_matrix layers_n max_layer 0. in 
 	network
 	
-(*funkcija kombinacije za sloj*)
-let combination_f layer weights = 
-	let w1 = Array.length weights.(0) and
-		w2 = Array.length weights and
-		l = Array.length layer in
-	if  w1 <> l then failwith "incompatible matrices!"
-	else(
-		let comb = Array.make w2 0. in
-		for i = 0 to w2-1 do
-			for j = 0 to w1-1 do
-				comb.(i) <- comb.(i) +. weights.(i).(j) *. layer.(j)
-			done;
-		done;
-	comb
-	)
-
 
 	
 (*izračuna napako med dobljenim in želenim rezultatom, vrne vektor razlik*)	
@@ -89,13 +89,18 @@ let delta_output d y =
 	else (
 		let e = Array.make d0 0. in 
 		for i = 0 to d0-1 do
-			e.(i) <- -.(d.(i) -. y.(i))*. (d_sigmoid y.(i))
+			if d.(i) = y.(i) then failwith "hit the right value"
+			else if y.(i) = 0. then failwith "output is zero"
+			else if y.(i) = 1. then failwith "output is one"
+			else e.(i) <- -.(d.(i) -. y.(i))*. (d_sigmoid y.(i))
 		done;
 	e
 	)
 
+
 		
 (*w so uteži enega sloja naprej(že popravljene!), h_m so izhodi v tem sloju, d_out je delta naslednjega sloja*)
+(*TO PREVERI ČE JE RES OK*)
 let delta_hidden w h_m d_out = 
 	let a = Array.length h_m and
 		d_0 = Array.length d_out in 
@@ -109,35 +114,50 @@ let delta_hidden w h_m d_out =
 	done;
 	e
 
-	
-let update_weights w rate delta output =
+let d_h_test = delta_hidden [|[|0.96001880057; 0.960018800875|]|] [|0.999954; 0.999954|] [|0.0399830142681|]
+
+(*w so uteži, ki jih popravljaš, rate je stopnja učenja, delta je error - pomožne funkcije,
+input so nevroni pred utežjo, eno stopnjo nazaj *)
+let update_weights w rate delta input =
 	let d_0 = Array.length delta and
-		out_0 = Array.length output in
+		in_0 = Array.length input in
 	for i = 0 to d_0 -1 do
-		for j = 0 to out_0 -1 do
-			w.(i).(j) <- w.(i).(j) -. rate *. delta.(i) *. output.(j)
+		for j = 0 to in_0 -1 do
+			w.(i).(j) <- w.(i).(j) -. rate *. delta.(i) *. input.(j)
 		done;
 	done;
+	(* let n = w |> Array.iter (Array.iter print_float) in *)
 	w
 
+(* let w1 = [|update_weights w 2. [|1.; 1.; 1.; 1.;1.|] [|1.; 1.; 1.; 8.; 1.; 1.; 1.; 1.; 1.; 1.; 1.|]|] *)
+
+
 (*funkcija, ki sprejme en učni primer in ustrezno popravi uteži*)
-(*????? a res rabiš podat x, če je x že v inicialize network *)	
 (*zdi se mi da dela, kako to preverit je vprašanje*)
 let learning_example x d network weights rate = 
 	let n = Array.length network in
 		network.(0) <- x;
+	(* let () = network |> Array.iter (Array.iter print_float) in *)
    	for i = 0 to n-2 do
 		network.(i+1) <- activation_layer( combination_f network.(i) weights.(i))
 	done; 
+	(* let () = network |> Array.iter (Array.iter print_float) in *)
+	(* let () = fun( print_newline) in  *)
 	let delta = ref (delta_output d network.(n-1)) in
 	for i = 0 to n-2 do
+		(* let () = print_newline () in *)
+		(* let () = print_endline "weights: " in *)
+		(* weights |> Array.iter (Array.iter (Array.iter print_float)); *)
+		(* let () = print_newline () in *)
+		(* let () = print_endline "delta: " in *)
+		(* !delta |> (Array.iter print_float); *)
 		weights.(n-2-i) <- update_weights weights.(n-2-i) rate !delta network.(n-2-i);
-		delta := (delta_hidden weights.(n-2-i) network.(n-2-i) network.(n-1-i)); (* TODO *) 
+		delta := (delta_hidden weights.(n-2-i) network.(n-2-i) !delta); 
 	done; 
+	(* let () = weights |> Array.iter (Array.iter (Array.iter print_float)) in *)
 	weights
 	
-	(*zaenkrat aktivira nevrone, to do je backprop oz popravi uteži*)
-	
+let lerarn_example_test = learning_example [|10.|] [|0.5|] [|[|1.|];[|0.;0.;|];[|0.|]|] [|[|[|1.|];[|1.|]|]; [|[|1.;1.|]|]|] 1.
 	
 (*
 funkciji podamo:
@@ -162,7 +182,7 @@ funkciji podamo:
 	done;
 	weights 
 	
-let train_with_input_weights input_array output_array network_topology rate bound weights =
+let train_with_input_weights input_array output_array network_topology rate weights =
 	let network = initialize_network network_topology in 
 	let n = Array.length input_array in 
 	for i = 0 to n-1 do
@@ -175,7 +195,7 @@ let train_with_input_weights input_array output_array network_topology rate boun
 	weights 
 
 
-let top1 = [|1;10;1|];;
+let top1 = [|1;5;7;3;6;1|];;
 
 let wei =   [|[|[|0.76594695592428386|]; [|-0.0287914411528156|];
       [|-0.12863740799826928|]; [|0.649951111889334|];
@@ -187,29 +207,31 @@ let wei =   [|[|[|0.76594695592428386|]; [|-0.0287914411528156|];
         -1.3169744816251547; -1.6853794283881924; -1.0685219023423334;
         -1.5259079504420299|]|]|] ;;
 		
-let trained_weights1 = train_with_input_weights input out top1 10. 1.0 wei
+let trained_weights1 = train_with_input_weights input out [|1;10;1|] 1. wei
 	
-let trained_weights = train_network input out top1 10. 1.0
+let trained_weights = train_network input out top1 1. 1.0
 
-(*daš notri uteži in topology in input in vrne napoved*)	
+(* daš notri uteži in topology in input in vrne napoved	 *)
 let predict input network_topology weights =
 	let network = initialize_network network_topology in
 	let n = Array.length network in
 		network.(0) <- input;
    	for i = 0 to n-2 do
 		network.(i+1) <- activation_layer( combination_f network.(i) weights.(i))
+		(* a moraštu čez vržt activation ali ne*)
 	done;
+	(* let n1 = network |> Array.iter (Array.iter print_float) in *)
 	network.(n-1)
 	
 
 let prediction = predict test_examples.(100) top1 trained_weights
 
-let prediction1 = predict test_examples.(100) top1 trained_weights1
+let prediction1 = predict [|0.005|] [|1;10;1|] trained_weights1
 
 let it_should_be = test_examples.(100)
 
 let error = prediction.(0) -. it_should_be.(0)
-let error1 = prediction1.(0) -. it_should_be.(0)
+let error1 = prediction1.(0) -. it_should_be.(0) 
 
 (* (*TEST*)
 

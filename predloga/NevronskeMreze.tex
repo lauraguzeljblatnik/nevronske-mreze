@@ -58,26 +58,49 @@
 
 \section{Uvod}
 
-Človeški možgani so kompleksen organ predvsem zaradi neštrtih funkcij, ki jih opravljajo. In zgolj vprašanje časa je bilo, kdaj bodo znanstveniki skoraj neskončne zmožnosti možganov prenesli v računalništvo. Ko so poskušali idejo uresničiti, so si predvsem želeli strukture, ki se bo - podobno kot možgani - sposobna učiti, odzivati na sprememe in prepoznati neznane situacije. Tako se je v polovici prejšnjega stoletja rodila ideja o umetnih nevronskih mrežah. 
+Človeški možgani so kompleksen organ predvsem zaradi neštetih funkcij, ki jih opravljajo. In zgolj vprašanje časa je bilo, kdaj bodo znanstveniki skoraj neskončne zmožnosti možganov prenesli v računalništvo. Ko so poskušali idejo uresničiti, so si predvsem želeli strukture, ki se bo - podobno kot možgani - sposobna učiti, odzivati na sprememe in prepoznati neznane situacije. Tako je 1949 Donal Hebb v svojem delu prvič predstavil idejo umetnih nevronskih mrežah, kjer se je zgledoval predvsem po možganih. Dvoslojni perceptorn se je rodil nekoliko kasneje, leta 1962 je ta pojem prvi omenil Rosenblatt. Z razvojem storjne opreme se je zanimanje za nevronske mreže zopet povečalo v osemdestih lezih prejšnjega stoletja. Leta 1986 je več razskovalcev neodvisno drug od drugega vpelje teorijo o večslojnih nevronskih mrežah in vzvratnem razširjanju napake. Kljub širokemu spektru uporabe, ki jih nudijo nevronske mreže je interes zanje kasneje nekoliko upadel. V zadnjih letih pa so nevronske mreže zopet vroča tema, predvsem zaradi njihove zmožnosti prepoznavanja slik. Do danes so umetne nevronske mreže močno napredovale, namesto običajnih mrež se vedno bolj uporabljajo globoke nevronske mreže, ki v nekaterih lastnostih celo prekašajo možgane. Kljub vsemu pa so možgani sposobni masrcičesa, česar računalniki ne bodo nikoli.
 
-Do danes so umetne nevronske mreže že močno napredovale in v nekaterih lastnostih celo prekašajo možgane. Kljub temu so možgani sposobni masrcičesa, česar računalniki ne bodo nikoli.
+Diplomska naloga se poglobi v umetne nevronske mreže z vzvratnim razširjanjem napake. Primer take mreže sem tudi implementirala v funkcijskem programskem jeziku OCaml. 
 
-Diplomska naloga se poglobi v nevronske mreže z vzvratnim razširjanjem napake. Za konec pa sem nevronsko mrežo tudi implementirala s pomočjo funkcijskega programskega jezika OCaml. Funkcijsko programiranje...
+\section{Umetne nevronske mreže}
+
+\subsection{Človeški možgani}
+Umetne nevronske mreže se v marsičem zgledujejo po človeških možganih. Osnovni gradniki možganov so nevroni, ki so med seboj povezani s sinapsami. Skozi naše življenje se sinapse spreminjajo po jakosti in številu, ko se učimo se ustvarjajo nove povezave med nevroni, že obstoječe pa postajajo močnejše. Nevron se aktivira le,  ko po sinapsi do njega pride signal s točno določeno frekvenco, ta impulz potem nevron posreduje svojim sosedom. Kot bomo videli v nadaljevanju, je osnovna ideja umetnih nevronskih mrež zelo podobna živčevju v možganih.  
+
+Kljub temu, da so umetne nevronske mreže osnovane po človeških možganih, se od njih v marsičem tudi razlikujejo.
+
+ Na primer možgani delujejo le kot celota, če se del možganov poškoduje bo motena večina funkcij, ki jih možgani opravljajo. Po drugi strani pa bopoškodovana umetna nevronska mreža še vedno delovala, le njeni rezultati bodo malo manj točni. 
+
+\subsection{Zgradba nevronskih mrež}
+Nevronske mreže so sestavljene iz nevronov, ki matematično gledano niso nič drugega kot funkcije. Nevroni so med seboj povezani, vsaka povezava ima svojo težo oziroma utež. Nevrone se naprej povezujejo v sloje, pomembno je poudariti, da nevroni v istem sloju med seboj niso povezani, vsak nevron je povezan le z vsemi nevroni v sosednjem (oziroma prejšnjem sloju). Nevronska mreža lahko vsebuje le vhodni in izhodni sloj - takrat govorimo o dvoslojni nevronski mreži. Če se med tema slojema skriva še kakšen skriti sloj, potem mreža postane večslojna. Večslojne mreže so pomembne predvsem zaradi tega, ker lahko rešujejo skoraj poljubne probleme, medtem ko dvoslojne mreže lahko rešijo je linerarne probleme (primeri linearnih problemov so in, ali, negacija, medtem ko je ekskluzivni ali že nelinearen problem, saj vrednosti 0 in 1 ne moremo ločiti s črto oziroma linearno funkcijo).
+
+Nevron prejme vhodno stanje, na njem uporabi funkcijo kombinacije in nato še funkcijo aktivacije.
+
+\subsubsection{Funkcija aktivacije}
 
 
 
-\section{Nevronske mreže}
 
 \subsection{Lastnosti nevronskih mrež}
 
 \subsection{Uporaba nevronskih mrež}
 
 \section{Učenje}
-Za učenje nevronskih mrež obstaja veliko različnih pravil. V svoji diplomski nalogi sem se osredotočila na posplošeno pravilo delta oziroma vzvratno razširjanje napake. 
-\subsection{Ideja}
-Za vzvratnim razširjanjem napake stoji povsem preprosta ideja. Najprej uteži poljubno nastavimo, paziti moramo le, da vseh vrednosti ne nastavimo na $0$.
+Najprej je smiselno definirati, kaj pojem učenje sploh pomeni. Po [VSTAVI VIR] za učenje potrebujemo sistem, ki strmi k izpolnitvi določene naloge oziroma cilja. Pred učenjem sistem ni sposoben zadostno opraviti naloge. S ponavljanjem določenih opravil poskušamo sistem pripraviti do tega, da bo deloval bolje, kjer je bolje lahko hitreje, ceneje, bolj pravilno... Učenje lahko torej definiramo kot zaporedje ponovitev, kjer pri vsaki ponovitvi skušamo zmanjšati napako tako, da bi se zastavljenemu cilju čimbolj približali. 
+
+Obstaja kar nekaj različnih pravil, kako umetno nevronsko mrežo naučiti pravilnega delovanja. V svoji diplomski nalogi sem se osredotočila na posplošeno pravilo delta oziroma vzvratno razširjanje napake. 
+
+\subsection{Ideja vzvratnega razširjanja napake}
+Učenje umetne nevronske mreže poteka tako, da iz začetnih poljubno izbranih uteži (pomembno je le, da niso vse uteži nastavljene na 0), uteži nastavimo tako, da bo mreža iz vhodnih podatkov znala napovedati izhod. Da mrežo naučimo pravilenga delovanja pa potrebujemo učne primere - torej vhodne podatke in željene izhode za te vrednisti. In tu se učenje lahko začne.
+Za vzvratnim razširjanjem napake stoji povsem preprosta ideja. Najprej uteži med nevroni poljubno nastavimo, nato na izbranem testnem primeru izračunamo za koliko se je naša mreža zmotila glede na pričakovan izhod. Tako dobimo napako s pomočjo katere lahko  vrednosti na utežeh popravimo takko, da minimaliziramo dobljeno napako. To počnemo od izhodnega sloja nevronov proti vhodnemu(od tod tudi ime -  vzvratno razširjanje napake oziroma backpropragation v anglrščini). Postopek ponavljamo na ostalih testnih primerih dokler se uteži ne ustalijo. Takrat se učenje konča.
+
 \subsection{Vzvratno razširjanje napake}
 Vzemimo splošen večsojen perceptron z $X_{N_X}$ nevroni v vhodnem sloju in $Y_{N_Y}$ nevroni v izhodnem sloju. Nevronska mreža naj sestoji iz $m$ skritih slojev, $m>0$, vsak skriti sloj pa naj vsabuje $N_k$ nevronov, kjer velja $1\leq k \leq m$. Nevrone v skritih slojih označimo sledeče: $H_{ij}$, kjer število $i$ ponazarja sloj v katerem se nevron nahaja, število $j$ pa zaporedno številko nevrona v tem sloju. 
+
+\subsection{Lastnosti vzvratnega razširjanja napake}
+Kljub temu, da imajo nevronske mreže veliko pozitivnih lastnosti, ima pravilo vzvratnega razširjanja napake tudi nekaj pomanjkljivosti.
+
+
 
 \section{Funkcijski programski jezik OCaml}
 

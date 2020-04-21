@@ -180,8 +180,8 @@ izhod:
 			(* weights.(i) |> Array.iter (Array.iter print_float); *)
 		done;
 				(* let () = print_newline () in *)
-				let () = print_newline () in
-		weights |> Array.iter (Array.iter (Array.iter print_float));
+				(* let () = print_newline () in *)
+		(* weights |> Array.iter (Array.iter (Array.iter print_float)); *)
 		(* let () = print_newline () in *)
 		(* weights <- pom; *)
 	done;
@@ -196,8 +196,9 @@ let train_with_input_weights input_array output_array network_topology rate weig
 		for i = 0 to (Array.length weights)-1 do
 			weights.(i) <- !pom.(i);
 		done;
-		(* let () = weights |> Array.iter (Array.iter print_float)  *)
-	done;
+				(* let () = print_newline () in *)
+		(* weights |> Array.iter (Array.iter (Array.iter print_float));	 *)
+		done;
 	weights 
 
 
@@ -210,7 +211,6 @@ let predict input network_topology weights act_fun =
 		network.(0) <- input;
    	for i = 0 to n-2 do
 		network.(i+1) <- activation_layer act_fun ( combination_f network.(i) weights.(i))
-		(* a moraštu čez vržt activation ali ne*)
 	done;
 	(* let n1 = network |> Array.iter (Array.iter print_float) in *)
 	network.(n-1)

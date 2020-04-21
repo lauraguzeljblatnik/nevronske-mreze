@@ -1,5 +1,10 @@
 #use "nevronske_mreze.ml";;
 
+#use "csv_ocaml.ml";;
+
+
+
+
 (* let lay = test_examples.(3);;
 
 let out_lay = test_out.(3);;	 *)
@@ -8,18 +13,19 @@ let out_lay = test_out.(3);;	 *)
 
 
 let w = [|[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
-[|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
+[|0.; 1.;0.;0.;0.;0.;0.;0.;0.;0.;0.;|];
 [|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
 [|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|];
 [|1.; 1.;1.;1.;1.;1.;1.;1.;1.;1.;1.;|]|];;
 
 
 
-let top1 = [|1;5;7;3;6;1|];;
+let top1 = [|1;3;1|];;
 
 
-let lerarn_example_test = learning_example [|10.|] [|0.5|] [|[|1.|];[|0.;0.;|];[|0.|]|] [|[|[|1.|];[|1.|]|]; [|[|1.;1.|]|]|] 1.
+(* let lerarn_example_test = learning_example [|10.|] [|0.5|] [|[|1.|];[|0.;0.|];[|0.|]|] [|[|[|1.|];[|1.|]|]; [|[|1.;1.|]|]|] 1. sigmoid d_sigmoid *)
 
+(* let predict_test = predict [|11.|] [|1;2;1|] lerarn_example_test sigmoid *)
 
 let wei =   [|[|[|0.76594695592428386|]; [|-0.0287914411528156|];
       [|-0.12863740799826928|]; [|0.649951111889334|];
@@ -31,13 +37,13 @@ let wei =   [|[|[|0.76594695592428386|]; [|-0.0287914411528156|];
         -1.3169744816251547; -1.6853794283881924; -1.0685219023423334;
         -1.5259079504420299|]|]|] ;;
 		
-let trained_weights1 = train_with_input_weights input out [|1;10;1|] 1. wei
+let trained_weights1 = train_with_input_weights input out [|1;10;1|] 1. wei sigmoid d_sigmoid		
 	
-let trained_weights = train_network input out top1 1. 1.0
+let trained_weights = train_network input out top1 1. 1.0 sigmoid d_sigmoid
 
-let prediction = predict test_examples.(100) top1 trained_weights
+let prediction = predict [|1.|] top1 trained_weights sigmoid
 
-let prediction1 = predict [|0.005|] [|1;10;1|] trained_weights1
+let prediction1 = predict [|1.|] [|1;10;1|] trained_weights1 sigmoid
 
 let it_should_be = test_examples.(100)
 
@@ -80,3 +86,9 @@ let neurons = initialize_network network_topology
 let weights = create_weights_matrix network_topology 5.
 
 let test = learning_example x d neurons weights rate  *)
+
+
+(* let delta_out = delta_output d_sigmoid [|1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 1.; 10.; 1.|] *)
+    (* [|0.; 2.; 0.; 0.; 0.; 0.; 0.; 0.; 0.; 9.; 0.|] *)
+	
+(* let d_h_test = delta_hidden [|[|0.43; 0.87|];[|0.45; 0.96|]|] [|0.9; 0.8|] [|0.3;0.4|] d_sigmoid *)

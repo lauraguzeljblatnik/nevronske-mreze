@@ -54,163 +54,499 @@
 % vstavite svoje definicije ...
 %  \newcommand{}{}
 
+\usepackage{neuralnetwork}
+\usepackage{epstopdf}
+\usepackage{graphicx}
+\usepackage{geometry,color}
+\usepackage{tikz}
+\usetikzlibrary{matrix,chains,positioning,decorations.pathreplacing,arrows}
+\usepackage{pgfplots}
+\usepackage{pst-plot}
+\psset{algebraic=true}
+
+\usepackage{subcaption} 
+
+
+
+
+
+
 \begin{document}
-
+%
 \section{Uvod}
-
+%
 Človeški možgani so kompleksen organ predvsem zaradi neštetih funkcij, ki jih opravljajo. In zgolj vprašanje časa je bilo, kdaj bodo znanstveniki skoraj neskončne zmožnosti možganov prenesli v računalništvo. Ko so poskušali idejo uresničiti, so si predvsem želeli strukture, ki se bo - podobno kot možgani - sposobna učiti, odzivati na sprememe in prepoznati neznane situacije. Tako je 1949 Donal Hebb v svojem delu prvič predstavil idejo umetnih nevronskih mrežah, kjer se je zgledoval predvsem po možganih. Dvoslojni perceptorn se je rodil nekoliko kasneje, leta 1962 je ta pojem prvi omenil Rosenblatt. Z razvojem storjne opreme se je zanimanje za nevronske mreže zopet povečalo v osemdestih lezih prejšnjega stoletja. Leta 1986 je več razskovalcev neodvisno drug od drugega vpelje teorijo o večslojnih nevronskih mrežah in vzvratnem razširjanju napake. Kljub širokemu spektru uporabe, ki jih nudijo nevronske mreže je interes zanje kasneje nekoliko upadel. V zadnjih letih pa so nevronske mreže zopet vroča tema, predvsem zaradi njihove zmožnosti prepoznavanja slik. Do danes so umetne nevronske mreže močno napredovale, namesto običajnih mrež se vedno bolj uporabljajo globoke nevronske mreže, ki v nekaterih lastnostih celo prekašajo možgane. Kljub vsemu pa so možgani sposobni masrcičesa, česar računalniki ne bodo nikoli.
 
 Diplomska naloga se poglobi v umetne nevronske mreže z vzvratnim razširjanjem napake. Primer take mreže sem tudi implementirala v funkcijskem programskem jeziku OCaml. 
-
+%
 \section{Umetne nevronske mreže}
-
+%
 \subsection{Biološko ozadje}
 Kot sugerira že samo ime, se umetne nevronske mreže v marsičem zgledujejo po človeških možganih. Osnovni gradniki možganov so nevroni, ki so med seboj povezani s sinapsami. Prav te goste povezave so ključne za delovanje živčevja. Skozi naše življenje se sinapse spreminjajo po jakosti in številu, ko se učimo se ustvarjajo nove povezave med nevroni, že obstoječe pa postajajo močnejše. Nevron se aktivira le,  ko po sinapsi do njega pride signal s točno določeno frekvenco, ta impulz nato nevron posreduje sosednjim nevronom. Človeške možgane sestavlja $10^{10}$ nevronov, vsak  ima približno $10^4$ sinaps. Umetne nevronske mreže načeloma sestavlja veliko manj nevronov, posledično so zato pri izvajanju operacij veliko hitrejše od možganov. Kot bomo videli v nadaljevanju, je osnovna ideja umetnih nevronskih mrež zelo podobna živčevju v možganih. Lahko bi rekli, da so umetne nevronske mreže zgolj abstraktna poenosatvitev delovanja možganov. 
-
 %SLIKA NEVRONOV V MOŽGANIH?
-
-
 \subsection{Zgradba nevronskih mrež}
 Nevronske mreže so sestavljene iz nevronov, ki matematično gledano niso nič drugega kot funkcije. Nevroni so med seboj povezani, vsaka povezava ima svojo težo oziroma utež. Nevrone razdelimo v sloje, pomembno je poudariti, da nevroni v istem sloju med seboj niso povezani, vsak nevron je povezan le z vsemi nevroni v sosednjem (oziroma prejšnjem sloju). Nevronska mreža lahko vsebuje le vhodni in izhodni sloj - takrat govorimo o dvoslojni nevronski mreži. Če se med tema slojema skriva še kakšen skriti sloj, potem mreža postane večslojna. Število nevronov v posameznem sloju tako kot tudi število skritih slojev nevronske mreže je odvisno od problema, ki ga nevronska mreža rešuje.
-
-%VSTAVI SLIKO NEVRONSKE MREŽE
-
+%
+\begin{figure}
+\centering
+    \begin{neuralnetwork}[height=4]
+        \newcommand{\x}[2]{$x_#2$}
+        \newcommand{\y}[2]{$y_#2$}
+        \newcommand{\hfirst}[2]{\small $h^{(1)}_#2$}
+        \newcommand{\hsecond}[2]{\small $h^{(2)}_#2$}
+        \inputlayer[count=3, bias=false, title=Vhodni\\sloj, text=\x]
+        \hiddenlayer[count=4, bias=false, title=Skriti\\sloj 1, text=\hfirst] \linklayers
+        \hiddenlayer[count=3, bias=false, title=Skriti\\sloj 2, text=\hsecond] \linklayers
+        \outputlayer[count=2, title=Izhodni\\sloj, text=\y] \linklayers
+    \end{neuralnetwork}
+\label{mreza}
+\caption{Perceptron z dvema skritima slojema nevronov}
+\end{figure}
+%
 Pri mrežah, ki jih bom obravnavala v diplomski nalogi, so vse povezave usmerjene, čeprav je pomembno omeniti, da obstajajo tudi mreže z dvosmernimi povezavami. Usmerjeni nevronski mreži rečemo perceptron, glede na število slojev pa ločimo dvoslojni in večslojni perceptron.  
-
-\subsection{Nevron}
-
+%
 \subsection{Delovanje perceptrona}
-Za začetek vzemimo dvoslojni perceptron z $m$ nevroni v vhodnem sloju, njihova stanja  označimo z $X_1, X_2, \ldots, X_m$ in $n$ nevroni v izhodnem sloju, označimo jih $Y_1, Y_2, \ldots, Y_{n}$. Običajno sloj nevronov zapišemo v obliki vektorja:
-\[ X = (X_1, X_2, \dotso, X_m)^\intercal  \quad \text{in} \quad  Y = (Y_1, Y_2, \dotso, Y_n)^\intercal \text{.}\]
-
+Vzemimo dvoslojni perceptron z $m$ nevroni v vhodnem sloju, njihova stanja  označimo z $X_1, X_2, \ldots, X_m$ in $n$ nevroni v izhodnem sloju, označimo jih $Y_1, Y_2, \ldots, Y_{n}$. Običajno sloj nevronov zapišemo v obliki vektorja:
+%
+\begin{equation*}
+X = (X_1, X_2, \dotso, X_m)^\intercal  \quad \text{in} \quad  Y = (Y_1, Y_2, \dotso, Y_n)^\intercal \text{.}
+\end{equation*}
+%
 Uteži med nevroni predstavimo z matriko:
-
-\[ M = \begin{bmatrix}
+%
+\begin{equation*}
+M = \begin{bmatrix}
 W_{11} &W_{12}  & \cdots & W_{1m}  \\
 W_{21}  &W_{22}  &\cdots & W_{2m}  \\
 \cdots &  &\cdots &  \\
 W_{n1} & W_{n2} & \cdots & W_{nm} 
-\end{bmatrix}  \]
+\end{bmatrix}  
+\end{equation*}
+%
+kjer element matrike $W_{ij}$ predstavlja utež med $i$-tim nevronom v vhodnem sloju in $j$-tim nevronom v izhodnem sloju.
+%
+\subsubsection{Funkcija nevrona}
+Izhodni sloj nevronov $Y$ dobimo tako, da vhodni sloj pomnožimo z matriko uteži - temu pravimo funkcija kombinacije, nato pa na tem rezultatu uporabimo še funkcijo aktivacije.\\
+%
 
-\subsubsection{Delovanje nevrona}
-Nevron prejme vhodno stanje, na njem uporabi funkcijo kombinacije in nato še funkcijo aktivacije.
+\textbf{Funkcija kombinacije:}
+Stanje $j$-tega nevrona po uporabljeni funkciji aktivacije je sledeče:
+%
+\begin{equation*}
+A_j= \sum_{i}W_{ij}X_i + C_j \text,
+\end{equation*}
+%
+kjer je $W_{ij}$ utež med $i$-tim in $j$-tim nevronom, $C_j$ pa konstanta aktivacije za $j$-ti nevron. 
+Za cel sloj izhodnih nevronov pa lahko funkcijo aktivacije zapišemo z linearno preslikavo:
+%
+\begin{equation*}
+A = WX \text,
+\end{equation*}
+%
+kjer je $W$ matrika uteži, $X$ pa vhodni vektor. Če enačbo zapišemo v vektorski obliki je potrebno upoštevati še konstante aktivacije, zato matriko uteži $W$ in vektor $X$ malo oreoblikujemo. Vektorju na konec dodamo še eno komponento z vrednostjo $1$, matriki pa na dno dodamo še vrstico s konstantami aktivacije. \\ 
+%TO POPRAVI GLEDE NA BIAS; 
 
-V vsakem sloju nevroni neodvisno izračunajo svoje izhode in te vrenosti posredujejo nevronom v naslednjem sloju
+\textbf{Funkcija aktivacije:}
+Cilj funkcije aktivacije je normalizirati vrednost, ki jo dobimo s funkcijo kombinacije. Glede na namen uporabe nevronske meže lahko uporabimo različne funkcije aktivacije. Najpogosteje se uporabljaljata stopničasta pragovna funkcija ali pa sigmoidna funkcija.
+%
 
+\emph{Stopničasta pragovna funkcija} nevron aktivira le, če je vrodnost dobljena z funkcijo aktivacije nad oziroma pod določeno mejo. Uporaba te funkcije je dokaj omejena, ker vhodnim podatkom pripiše le dve različni vrednosti, jo lahko uporabimo le pri klasifikaciji v dve kategoriji. Prav tako jo lahko uporabimo samo pri dvoslojnih perceptronih. Kot bomo videli v nadaljevanju, za večslojne perceptrone ni primerna, saj je njen odvod enak $0$, kar pa pomeni, da za učenje ne moremo uporabiti posplošenega pravila delta.
+%
+\begin{equation*}
+f(x)=
+    \begin{cases}
+      0, & \text{če } x  \leq 0 \\
+      1, & \text{sicer}
+    \end{cases} 
+\end{equation*}
+%
+\begin{figure}[!ht]
+  \centering
+    \includegraphics[width=0.5\textwidth]{step_fun.jpg}
+  \label{fig:step}
+ \caption{Stopničasta pragovna funkcija aktivacije}
+\end{figure}
+%
 
+\emph{Sigmoidne funkcije} so nelinearne, zato se uporabljajo pri večslojnih perceptornih. So zvezne in neskončnokrat zvezno odvedljive, teko jih lahko uporabimo pri posplošenem pravilu delta. Odvisno na kateri interval želimo normalizirati izhodne vrednosti, uporabimo različne sigmoidne funkcije. Primera sigmoidne funkcije sta: 
+%
+\begin{equation}
+f(x) = \frac{1}{1+e^{-x}} \quad in \quad h(x) = \tanh(x) = \frac{e^x-e^{-x}}{e^x+e^{-x}} \text.
+\end{equation}
+%
+Kot lahko vidimo z grafov (slika \ref{fig:sigmoid}) je na intervalu $(-2,2)$ gradient obeh funkcij zelo velik, zato da na omenjenem intervalu mreža pri napovedovanju jasne rezultate in učenje je hitro. Po drugi strani pa je zunaj tega intervala odvod majhen, tako je učenje mreže in posledično napovedovanje zelo počasno in slabo.
 
+Za učenje mreže s posplošenim pravilom delta potrebujemo tudi odvod funkcije aktivacije, ki ga pri zgornjih dveh funkcijah lahko izrazimo z $f(x)$ oziroma $h(x)$ sledeče:
+%
+\begin{equation}
+f'(x) = \frac{e^{-x}}{(1+e^{-x})^2} = f(x)(1-f(x))
+\end{equation}
+%
+\begin{equation}
+h'(x) = \left(\frac{\sinh(x)}{\cosh(x)}\right)' = \frac{\cosh^2(x)- \sinh^2(x)}{\cosh^2(x)} = 1 - \tanh^2(x) = 1 - h(x)^2 
+\end{equation}
+%
+\begin{figure}[!th]
+\centering
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{sig_exp.jpg}
+\end{subfigure}%
+\begin{subfigure}{.5\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{sig_tan.jpg}
+\end{subfigure}
+\caption{Sigmoidni funkciji aktivacije}
+\label{fig:sigmoid}
+\end{figure}
+%
+%
+\\
+
+Če združimo funkcijo kombinacije in funkcijo aktivacije, lahko napišemo pravilo za funkcijo nevrona, tj.~ izračun izhodnih vrednosti nevrona. Za posamezen nevron velja:
+%
+\begin{equation*}
+Y_j = f(\sum_{i}W_{ij}X_i + C_j)
+\end{equation*}
+%
+oziroma v vektorski obliki za cel sloj izhodnih nevronov:
+%
+\begin{equation*}
+Y = f(WX) \text,
+\end{equation*}
+%
+kjer velja, da funkcijo aktivacije uporabimo na vsaki komponenti vektorja $WX$. 
+%
+\begin{figure}
+\centering
+\begin{tikzpicture}[
+    % define styles    
+    init/.style={ 
+         draw, 
+         circle, 
+         inner sep=2pt,
+         font=\Huge,
+         join = by -latex
+    },
+    squa/.style={ 
+        font=\Large,
+        join = by -latex
+    }
+]
+% Top chain x1 to w1
+\begin{scope}[start chain=1]
+    \node[on chain=1] at (0,1.5cm)  (x1) {$X_1$};
+    \node[on chain=1,label=above:Uteži,join=by o-latex] (w1) {$w_1$};
+\end{scope}
+% Middle chain x2 to output
+\begin{scope}[start chain=2]
+    \node[on chain=2] (x2) {$X_2$};
+    \node[on chain=2,join=by o-latex] {$w_2$};
+%\node[on chain=2,squa,label=above:{\parbox{6cm}{\centering Funkcija\\ kombinacije}}]{$\displaystyle\Sigma$};
+    \node[on chain=2,init, squa,label=below:{\parbox{4cm}{\centering Funkcija\\ kombinacije}}] (sigma) {$\displaystyle\Sigma$};
+    \node[on chain=2,squa,label=above:{\parbox{2cm}{\centering Funkcija\\ aktivacije}}]   {$f_{act}$};
+    \node[on chain=2,squa,label=above:Izhod,join=by -latex] {$Y$};
+\end{scope}
+% Bottom chain x3 to w3
+\begin{scope}[start chain=3]
+    \node[on chain=3] at (0,-1.5cm) 
+    (x3) {$X_3$};
+    \node[on chain=3,join=by o-latex]
+    (w3) {$w_3$};
+\end{scope}
+% Arrows joining w1, w3 and b to sigma
+\draw[-latex] (w1) -- (sigma);
+\draw[-latex] (w3) -- (sigma);
+%\draw[o-latex] (b) -- (sigma);
+% left hand side brace
+\draw[decorate,decoration={brace,mirror}] (x1.north west) -- node[left=10pt] {Vhodi} (x3.south west);
+\end{tikzpicture}
+\caption{Funkcija nevrona}
+\label{Funkcija nevrona}
+\end{figure}
+%
 \subsection{Lastnosti nevronskih mrež}
-Nevronske mreže odlikujejo tako pozitivne kot negativne lastnosti. Med pozitivne spadajo:
-\begin{enumerate}
-\item paralelizabilnost:
-\item robustnost:
-\item 
-\end{enumerate}
-Glavna pomanjkljivost nevronskih mrež je določanje topologije mreže. Število nevronov v posameznem skritem sloju in število skritih slojev je odvisno od posameznega primera. Idealno topologijo nevronske mreže je tako težko doseči, do nje lahko pridemo le z ugibanjem. Še ena slaba lastnost pa je nezmožnost razlaganja odločitev. Zaradi kompleksne strukture je vsak rezultat mreže produkt večih neodvisnih operacij nevronov, ki jih ne moremo razložiti.
+Nevronske mreže odlikuje kar nekaj pozitivnih lastnosti. Najpomembnejše med njimi so sledeče:
 
+\textbf{Paralelizabilnost: }Posamičen nevron deluje relativno neodvisno od ostalih nevronov. Paralelizabilnost posledično pomeni zelo hitre operacije in omogoča uporabo nevronskih mrež pri reševanju kompleksnih problemov.
+%
+\textbf{Stabilnost: }Izgubljen ali nedelujoč nevron le malo pokvari natančnost delovanja nevronske mreže (več kot je takih nevronov, manj natančna je nevronska mreža). Nevronske mreže so tako stabilne v smislu uničenih nevronov in njihovih povezav. Poleg tega pa so stabilne tudi v smislu nepopolnih podatkov. To pomeni, da mrežo lahko naučimo pravilnega delovanja, tudi če v učnih priemrih del podatkov manjka. Velja pa, da bolj nepopolni kot so podatki, slabša je aproksimacija nevronske mreže.
+%
+\textbf{Matematično ozadje: }Nevronske mreže so tesno povezane z linearno algebro, predvsem z linearnimi preslikavami, lastnimi vrednostmi in vektorji ter negibnimi točkami.
 
+Glavna pomanjkljivost nevronskih mrež je določanje topologije mreže. Število nevronov v posameznem skritem sloju in število skritih slojev je odvisno od posameznega primera. Idealno topologijo nevronske mreže je tako težko doseči, do nje lahko pridemo le z ugibanjem. Še ena slaba lastnost pa je nezmožnost razlaganja odločitev (ang.~ balckbox). Zaradi kompleksne strukture je vsak rezultat mreže produkt večih neodvisnih operacij nevronov, ki jih ne moremo razložiti.
+%
+%
 \subsection{Uporaba nevronskih mrež}
-Zaradi razvoja strojne opreme v zadnjih letih so močno napredovale tudi nevronske mreže. Poleg tega so bile razvite tudi hitrjše implementacije algoritmov, posledično je uporaba nevronskih mrež danes zelo pogosta v industriji. Pomembno je tudi dejstvo, da nevronske mreže lahko rešujejo najrazličnejše probleme, zato se dandanes nevronske mreže porabljajo na skoraj vseh mogočih področjih. Dva najpomembenjša namena uporabe sta regresija in klasifikacija. Področja industrijske uporabe so: 
+Z razvojem strojne opreme v zadnjih letih so močno napredovale tudi nevronske mreže. Razvite tudi hitrjše implementacije algoritmov, posledično je zaradi njihove efektivnosti uporaba nevronskih mrež danes zelo pogosta v industriji. Ko nevronsko mrežo z učnimi primeri naučimo pravilnega delovanja, se mreža zna odzvati na nepoznane situacije. Tako lahko, zaradi njihove splošnosti in sposobnosti sprejetja velikega števila vhodnih podatkov, nevronske mreže uporabimo za reševanje najrazličnejših probleme. Zato se dandanes uporabljajo na skoraj vseh mogočih področjih. Dva najpomembenjša namena uporabe sta napovedovanje in klasifikacija. Primeri uporabe v industriji so: 
 \begin{itemize}
-\item prepoznavanje in klasifikacija slik: konkretno podjetje Google uporablja nevronske mreže za prepoznavanje slik, ki jih nato opremi s ključnimi besedami
+\item prepoznavanje in klasifikacija slik: konkretno podjetje Google uporablja nevronske mreže za prepoznavanje slik, ki jih nato opremi s ključnimi besedami,
 \item prepoznavanje ročno napisanih besedil,
-\item prepoznavanje  govora, tu bi veljalo izpostaviti podjete Miscrosoft, ki je razvilo nevronsko mrežo, ki govorjeno angleščino prevaja v kitajščino
+\item prepoznavanje  govora, tu bi veljalo izpostaviti podjete Miscrosoft, ki je razvilo nevronsko mrežo, ki govorjeno angleščino prevaja v kitajščino,
 \item kontrola kvalitete v produkciji,
-\item v zdravstvu se uporabljajo za določanje pacientove diagnoze
+\item v zdravstvu se uporabljajo za določanje pacientove diagnoze,
 \item napovedovanje različnih vrednosti glede na trenutne trende.
-
 \end{itemize}
-
-
+%
 \section{Učenje}
-Najprej je smiselno definirati, kaj pojem učenje sploh pomeni. Po [VSTAVI VIR] za učenje potrebujemo sistem, ki strmi k izpolnitvi določene naloge oziroma cilja. Pred učenjem sistem ni sposoben zadostno opraviti naloge. S ponavljanjem določenih opravil poskušamo sistem pripraviti do tega, da bo deloval bolje, kjer je bolje lahko hitreje, ceneje, bolj pravilno\ldots Učenje lahko torej definiramo kot zaporedje ponovitev, kjer pri vsaki ponovitvi skušamo zmanjšati napako tako, da bi se zastavljenemu cilju čimbolj približali. 
+Najprej je smiselno definirati, kaj pojem učenje sploh pomeni. Po \cite[str.~37]{kononenko} za učenje potrebujemo sistem, ki strmi k izpolnitvi določene naloge oziroma cilja. Pred učenjem sistem ni sposoben zadostno opraviti naloge. S ponavljanjem določenih opravil poskušamo sistem pripraviti do tega, da bo deloval bolje, kjer je bolje lahko hitreje, ceneje, bolj pravilno\ldots Učenje lahko torej definiramo kot zaporedje ponovitev, kjer pri vsaki ponovitvi skušamo zmanjšati napako tako, da bi se zastavljenemu cilju čimbolj približali. 
 
-Obstaja kar nekaj različnih pravil, kako umetno nevronsko mrežo naučiti pravilnega delovanja. V svoji diplomski nalogi sem se osredotočila na posplošeno pravilo delta oziroma vzvratno razširjanje napake, ki je nekako standaren algoritem pri večslojnih perceptronih. 
+Učenje umetne nevronske mreže poteka tako, da iz začetnih poljubno izbranih uteži (pomembno je le, da niso vse uteži nastavljene na 0), uteži popravimo tako, da bo mreža iz poljubnih vhodnih podatkov znala napovedati izhod. Da mrežo naučimo pravilenga delovanja potrebujemo učne primere - torej vhodne podatke in želene izhode za te vrednosti. 
+
+Obstaja kar nekaj različnih pravil, kako umetno nevronsko mrežo naučiti pravilnega delovanja. V svoji diplomski nalogi sem se osredotočila na posplošeno pravilo delta oziroma vzvratno razširjanje napake, ki je nekako standaren algoritem za učenje pri večslojnih perceptronih. Za lažje razumevanje le tega, pa se najprej osredotočimo na navadno pravilo delta.
 
 \subsection{Pravilo delta}
-Pravilo delta se uporablja pri učenju dvoslojnih perceptronov. Če je mreža večslojna, potem govorimo o vzvratnem razširjanju napake. Najprej si poglejmo kako deluje pravilo delta, saj je vzvratno razširjanje napake samo posplošitev pravila delta.
+Pravilo delta se uporablja pri učenju uteži dvoslojnih perceptronov. Če je mreža večslojna, potem govorimo o vzvratnem razširjanju napake oziroma posplošenem pravilu delta. Za pravilom delta stoji povsem preprosta ideja. Najprej uteži med nevroni poljubno nastavimo, nato na izbranem testnem primeru izračunamo za koliko se je naša mreža zmotila glede na pričakovan izhod. Tako dobimo napako s pomočjo katere lahko vrednosti na utežeh popravimo tako, da minimaliziramo dobljeno napako. Postopek ponavljamo na ostalih učnih primerih, dokler se uteži ne ustalijo (včasih lahko isti učni primer uporabimo tudi večkrat). Takrat se učenje konča.
+Za začetek vzemimo preprost dvoslojni perceptron z enim izhodnim nevronom $Y$, število vhodnih nevronov je poljubno. Pravilo delta pri spreminjanju vrednosti uteži upošteva razliko med želenim in dobljenim izhodom mreže. Tako definiramo napako mreže kot kvadrat razlike omenjenih izhodov:
+%
+\begin{equation}
+\begin{aligned}
+E(l) &= (d(l)-Y(l))^2 \\
+&= (d(l)-WX(l))^2
+\end{aligned}
+\end{equation}
+%
+kjer je $d(l)$ želen izhod in $Y(l)= WX(l)$ z mrežo izračunana vrednost pri $l$-tem učnem primeru, vhodnem vektorju $X(l)$ in matriki uteži $W$.
 
-\subsection{Ideja vzvratnega razširjanja napake}
-Učenje umetne nevronske mreže poteka tako, da iz začetnih poljubno izbranih uteži (pomembno je le, da niso vse uteži nastavljene na 0), uteži popravimo tako, da bo mreža iz vhodnih podatkov znala napovedati izhod. Da mrežo naučimo pravilenga delovanja potrebujemo učne primere - torej vhodne podatke in željene izhode za te vrednosti. 
-Za vzvratnim razširjanjem napake stoji povsem preprosta ideja. Najprej uteži med nevroni poljubno nastavimo, nato na izbranem testnem primeru izračunamo za koliko se je naša mreža zmotila glede na pričakovan izhod. Tako dobimo napako s pomočjo katere lahko  vrednosti na utežeh popravimo tako, da minimaliziramo dobljeno napako. To počnemo od izhodnega sloja nevronov proti vhodnemu(od tod tudi ime -  vzvratno razširjanje napake oziroma backpropragation v anglrščini). Postopek ponavljamo na ostalih testnih primerih dokler se uteži ne ustalijo. Takrat se učenje konča.
+Pravilo delta temelji na gradientnem iskanju, vektor uteži popravljamo v negativni smeri odvoda napake po utežeh. Izračunamo še odvod napake po utežeh:
+%
+\begin{equation*}
+\frac{dE(l)}{dW}= -2(d(l)-WX(l))X(l)
+\end{equation*}
+%
+Sedaj lahko zapišemo enačbo za pravilo delta:
+%
+\begin{equation}
+\begin{aligned}
+W^{(NOV)} &= W - \eta\frac{dE(l)}{dW} \\
+&= W + \eta(d(l)-WX(l))X(l)
+\label{utezi}
+\end{aligned}
+\end{equation}
+%
+V zgornji enačbi $\eta$ predstavlja hitrost učenja in določa kako hitro bodo uteži konvergirale k optimalnim. 
+
+\subsubsection{Gradientno iskanje} 
+Za pravilom delta stoji gradientno iskanje. To je v bistvu iskanje lokalnega minimuma. Začnemo na naključni točki na grafu (zato utežem na začetku nastavimo naključne vrednosti) in se nato v vsakem koraku premaknemo po krivulji v smeri negativnega odvoda, to je smer, kjer funkcija najhitreje pada. Dolžino vsakega premika pri učenju nevronskih mrež določa stopnja učenja $\eta$, zato je pomembno kakšno vrednost zanjo izberemo.
 
 \subsection{Vzvratno razširjanje napake}
+%IDEJA in opis
+Vzvratno razširjanje napake temelji na pravilu delta. Problem se pojavi, ker uteži med skritimi sloji niso direktno odvisne od napake med izhodnim stanjem in želeno vrednostjo, zato moramo pravilo malo prilagoditi. Ko popravljamo uteži, to počnemo od izhodnega sloja nevronov proti vhodnemu (od tod tudi ime -  vzvratno razširjanje napake oziroma \emph{backpropragation} v anglrščini). 
 
+\subsubsection{Notacija}
+Definirajmo notacijo, ki jo bomo uporabili pri izpeljavi vzvratnega razširjavnja napake. 
+\begin{itemize}
+\item $X_{i}$ označuje $i$-ti nevron v vhodnem sloju.
+\item $H_{ki}$ označuje $i$-ti nevron v $k$-ti skriti plasti.
+\item $Y_i$ označuje $i$-ti nevron v izhodni plasti
+\item $W^{(k)}_{ij}$ označuje utež med $i$-tim nevronom v  $k-1$ plasti in $j$-tim nevronom v $k$-ti plasti
+\item $A_{ki}$ označuje stanje $i$-tega nevrona v $k$-ti skriti plasti po uporabljeni funkciji kombinacije: $A_{kj} = \sum^{N_{k-1}}_{j=1}W^{(k)}_{ij}X_j$, poseben primer je stanje $i$-tega nevrona v izhodni plasti, ki ga označimo z $A_i$
+\end{itemize}
 
-Vzemimo splošen večsojen perceptron z $X_{N_X}$ nevroni v vhodnem sloju in $Y_{N_Y}$ nevroni v izhodnem sloju. Nevronska mreža naj sestoji iz $m$ skritih slojev, $m>0$, vsak skriti sloj pa naj vsabuje $N_k$ nevronov, kjer velja $1\leq k \leq m$. Nevrone v skritih slojih označimo sledeče: $H_{ij}$, kjer število $i$ ponazarja sloj v katerem se nevron nahaja, število $j$ pa zaporedno številko nevrona v tem sloju. 
+\subsubsection{Izpeljava vzvratnega razširjanja napake}
+Vzemimo splošen večsojen perceptron z $N_X$ nevroni v vhodnem sloju in $N_Y$ nevroni v izhodnem sloju. Nevronska mreža naj sestoji iz $m$ skritih slojev, $m>0$, vsak skriti sloj pa naj vsabuje $N_k$ nevronov, kjer velja $1\leq k \leq m$. 
 
-Najprej za dani učni primer izračunamo izhodne vrednosti, tako da na vsakem nevronu uporabimo funkcijo aktivacije in kobinacije. Za $i$-ti nevron v prvem skritem sloju lahko zapišemo:
-
-\[ H_{1i}(l) = f\left( \sum^{N_X}_{j=1}{W^{(1)}_{ij}X_j(l)}\right)  \]
-
-Zaradi poenostavitve označimo še:
-
-\[A{1i}(l) =\sum^{N_X}_{j=1}{W^{(1)}_{ij}X_j(l)} \]
-
+Preden se lotimo popravljanja uteži, moramo za dani $l$-ti učni primer izračunamo izhodne vrednosti. To storimo tako, da na vsakem nevronu uporabimo funkcijo aktivacije in kobinacije. Za $i$-ti nevron v prvem skritem sloju lahko zapišemo:
+%
+\begin{equation*}
+H_{1i}(l) = f\left( \sum^{N_X}_{j=1}{W^{(1)}_{ij}X_j(l)}\right)
+\end{equation*}
+%
+in
+%
+\begin{equation*}
+A{1i}(l) =\sum^{N_X}_{j=1}{W^{(1)}_{ij}X_j(l)}
+\end{equation*}
+%
 Za poljubni $k$-ti sktiti sloj, kjer je $1\leq k \leq m$ ,tako zapišemo:
-
-\[ H_{ki}(l) = f(A_{ki}(l)), \] 
-
+%
+\begin{equation*}
+H_{ki}(l) = f(A_{ki}(l))\text,
+\end{equation*}
+%
 kjer je
-
-\[A_{ki}(l) = \sum^{N_{k-1}}_{j=1}{W^{(k)}_{ij}H_{k-1,j}(l)}.\]
-
+%
+\begin{equation*}
+A_{ki}(l) = \sum^{N_{k-1}}_{j=1}W^{(k)}_{ij}H_{k-1,j}(l)\text.
+\end{equation*}
+%
 V zgornji enačbi $H_{k-1,j}$ označuje že izračunane vrednosti nevronov v predhodnem sloju.
  
- V izhodnem sloju dobimo vrednosti, ki nas najbolj zanimajo. Označimo:
-
-\[  Y_{i}(l) = f(A_{i}(l)) \quad \text{in} \quad A_{i}(l) = \sum^{N_{m}}_{j=1}{W^{(m+1)}_{ij}H_{m,j}(l)}.   \]
-
-Tako smo dobili izhodne vrednosti, ki jih je izračunala naša mreža. Vrenosti primerjamo s testimi, ki bi si jih želeli dobiti za dani $l$-ti učni primer. Za posamezen nevron napako ozančimo sledeče:
-
-\[e_i(l) = d_i(l) - Y_i(l), \]
-
+ V izhodnem sloju dobimo vrednosti, ki nas najbolj zanimajo. Velja:
+%
+\begin{equation*}
+Y_{i}(l) = f(A_{i}(l)) \quad \text{in} \quad A_{i}(l) = \sum^{N_{m}}_{j=1}{W^{(m+1)}_{ij}H_{m,j}(l)}\text.
+\end{equation*}
+%
+Tako smo dobili izhodne vrednosti, ki jih je izračunala naša mreža. Vrednosti primerjamo s tistimi, ki bi si jih želeli dobiti za dani $l$-ti učni primer. Za posamezen nevron ozančimo sledeče:
+%
+\begin{equation}
+e_i(l) = d_i(l) - Y_i(l)\text,
+\end{equation}
 lahko pa enačbo zapišemo tudi v vektoski obliki:
-
-\[e(l) = d(l) - Y(l).\]
-
-Napako celotne nevronske mreže za $l$-ti učni primer pa definiramo sledeče:
-
+\begin{equation*}
+e(l) = d(l) - Y(l)\text.
+\end{equation*}
+Podobno kot pri pravilu delta, napaki celotne nevronske mreže za $l$-ti učni primer definiramo:
+%
 \begin{equation}
 E(l) = \frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l)
 \label{napaka}
 \end{equation}
-
-Uteži popravimo v smeri negativnega odvoda napake $E$, saj želimo napako minimalizirati. Tu gre za gradientno iskanje. Nove uteži izračunamo po sledeči formuli:
-
-\begin{equation}
+%
+Napako želimo minimalizirati in podobno kor prej s pomočjo gradientnega iskanja uteži popraviti v smeri negativnega odvoda napake $E$. Nove uteži izračunamo s pomočjo enake formule kot prej (enačba \eqref{utezi}):
+\begin{equation*}
 W^{NOV} = W - \eta \frac{dE}{dW}, 
-\end{equation}
-
+\end{equation*}
+%
 kjer $\eta$ označuje stopnjo učenja. 
-Pri izračunu zgornjega odvoda si bomo pomagali s verižnim pravilom za odvajanje. Odvod enostavno izračunamo za izhodni sloj. Problem se pojavi pri popravljanju uteži v skritih slojih, saj uteži niso direktno povezane z napako. Kot bomo videli v nadaljevanju, je tudi tu rešitev verižno pravilo.
+
+Pri izračunu zgornjega odvoda si bomo pomagali s verižnim pravilom za odvajanje. Za izhodni sloj je napako enostavo izračunati. Problem se pojavi pri skritih slojih, saj uteži niso direktno odvisne od napake. Kot bomo videli v nadaljevanju, si bomo tudi v tem primeru pomgali z verižnim pravilom. 
 
 Najprej razpišimo formulo \eqref{napaka}, kjer upoštevamo formuli za $e_i$ in $Y_i$:
-
-\[ 
+\begin{equation*}
 \begin{aligned}
-E(l) &= \frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l) =   \frac{1}{2}\sum^{N_Y}_{i=1}{(d_i(l) - Y_i(l))}^2(l) \\
+E(l) &= \frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l) \\
+&=\frac{1}{2}\sum^{N_Y}_{i=1}{(d_i(l) - Y_i(l))}^2(l) \\
 &= \frac{1}{2}\sum^{N_Y}_{i=1}{(d_i(l)-f(\sum^{N_m}_{j=1}{W^{(m+1)}_{ij}H_{m,j}(l)))}}^2(l)  
 \end{aligned}
-\]
-
+\end{equation*}
+%
  Sedaj za izračun odvoda uporabimo verižno pravilo,  formulo razpišemo na posamezno utež:
-
+%
 \begin{equation}
- \frac{dE(l)}{dW_{ij}} = 
+\frac{\partial E(l)}{\partial W^{(m+1)}_{ij}} = \frac{\partial E(l)}{\partial e_i(l)}
+\frac{\partial e_i(l)}{\partial Y_i(l)} 
+\frac{\partial Y_i(l)}{\partial A_i(l)}
+\frac{\partial A_i(l)}{\partial W^{(m+1)}_{ij}}
 \end{equation}
+%
+Zgornje parcialne odvode pa lahko ob pomoči definicij posameznih izrazov zapišemo sledeče:
+%
+\begin{equation}
+\frac{\partial E(l)}{\partial e_i(l)} = \frac{\partial (\frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l))}{\partial e_i(l)}=e_i(l)
+\end{equation}
+%
+\begin{equation}
+\frac{\partial e_i(l)}{\partial Y_i(l)}= \frac{\partial (d_i(l) - Y_i(l))}{\partial Y_i(l)} = -1
+\end{equation}
+%
+\begin{equation}
+\frac{\partial Y_i(l)}{\partial A_i(l)} = \frac{\partial (f(A_i(l))) }{\partial A_i(l)} =f'(A_i(l))
+\end{equation}
+%
+\begin{equation}
+\frac{\partial A_i(l)}{\partial W^{(m+1)}_{ij}} =\frac{\partial \sum^{N_m}_{j=1}W_{ij}^{(m+1)}H_{m,j}(l)}{\partial W^{(m+1)}_{ij}} = H_{mj}(l)
+\end{equation}
+%
+Pri tem velja, da je $f'$ odvod funkcije aktivacije in je odvisen od tega, katero funkcijo aktivacije uporabimo. 
 
+Zaradi boljše preglednosti parcialni odvod zapišemo še malo drugače:
+\begin{equation*}
+\begin{aligned}
+\frac{\partial E(l)}{\partial W^{(m+1)}_{ij}} = \frac{\partial E(l)}{\partial A_i(l)}\frac{\partial A_i(l)}{\partial W^{(m+1)}_{ij}} 
+\end{aligned}
+\end{equation*}
+%
+Če upoštevamo zgoraj izračunani odvod dobimo: 
+%
+\begin{equation*}
+\frac{\partial E(l)}{\partial W^{(m+1)}_{ij}} = \frac{\partial E(l)}{\partial A_i(l)}H_{mj}(l) 
+\end{equation*}
+%
+Označimo: 
+%
+\begin{equation*}
+\frac{\partial E(l)}{\partial A_i(l)} = \Delta^{(m+1)}_i 
+\end{equation*}
+%
+Združimo vse zgornje rezultate in zapišemo pravilo za izračun novih uteži pri izhodnem sloju:
+%
+\begin{equation}
+\begin{aligned}
+W^{NOV(m+1)}_{ij} &= W ^{(m+1)}_{ij}- \eta \frac{dE(l)}{dW_{ij}^{(m+1)}} \\
+&= W ^{(m+1)}_{ij} -\eta  \Delta^{(m+1)}_i H_{mj}(l)\\
+&= W ^{(m+1)}_{ij} -\eta e_i(l) f'(A_i(l))H_{mj}(l)\\
+\end{aligned}
+\end{equation}
+%
+Tako smo izpeljali pravilo za spremembno uteži, ki povezujejo izhodni sloj s predhodnikom. 
+
+Vzvratno razširjanje napake pride do izraza šele pri skritih slohjih. Ker ne moremo direktno izračunati napake $e_i$, si pri računanju pomagamo z že spremenjenimi utežmi v izhodnem sloju in pa $\Delta^{(m+1)}$, ki smo ga spotoma izračunali. Za uteži, ki povezujejejo zadnji skriti sloj nevronov z izhodnim lahko ob upoštevanju verižnega pravila zapišemo:
+%
+\begin{equation*}
+ \frac{\partial E(l)}{\partial W^{(m)}_{ij}} = \frac{\partial E(l)}{\partial A_{mi}(l)} \frac{\partial A_{mi}(l)}{\partial W^{(m)}_{ij}}
+= \Delta^{(m)}_i H_{m-1,j}
+\end{equation*}
+%
+Velja:
+%
+%OD TU NAPREJ DELAJ
+\begin{equation*}
+frac{\partial A_{mi}(l)}{\partial W^{(m)}_{ij}}
+\end{equation*}
+%
+in podobno kot prej zopet označimo:
+%
+\begin{equation*}
+\frac{\partial E(l)}{\partial A_{mi}(l)}
+\end{equation*}
+%
+Odvod %h po a 
+že poznamo: ,
+%
+\begin{equation*}
+\end{equation*}
+%
+izračunati moramo le še odvod..
+%
+\begin{equation*}
+\end{equation*}
+%
+
+%
+\begin{equation*}
+\end{equation*}
+%
 
 \subsection{Lastnosti vzvratnega razširjanja napake}
 Kljub temu, da imajo nevronske mreže veliko pozitivnih lastnosti, ima pravilo vzvratnega razširjanja napake tudi nekaj pomanjkljivosti.
+  
+-stopnjo učenja moramo določiti empirično, stopnja učenja vpliva na gradientno metodo, eta vpliva kako hitro bomo prišli do minimuma 
+-topologijo določimo empirično, ni pravila, s poskušanjem
+-ni nujno da konvergira k optimalni mreži, lahko limitira k lokalnemu optimumu kar ni generalno najbolje, kam bo limitiralo odvisno oz začetnih uteži, če ni ok učenje ponovimo
+- potrebno veliko število učnih primerov da mreža pravilno deluje, 10 alo 100 tisoč da dejansko ok deluje
 
-
+Rešitev: 
 
 \section{Funkcijski programski jezik OCaml}
+OCaml spada med funkcijske programse jezike. Poleg funkcijskih poznamo še objektne in proceduralne programske jezike. Sicer je res, da ima  vsak način programiranja svoje prednosti in slabosti, ampak dejansko gledano, so to le različni načini pisanja kode.
 
-\section{Praktični del}
+\subsection{Lastnosti funkcijskih programskih jezikov}
+V funkcijskem programiranju so osnovni objekti funkcije. To pomeni, da lahko kot spremenljivko v funkciji podamo kar funkcijo. Tako funkcijam, ki kot argument lahko sprejmejo drugo funkcijo, pravimo funkcije višjega reda (higher-order function). Funkcijsko programiranje je zelo efektivno pri rekurzivnih funkcijah. 
 
-\section{Zaključek}
+%Primer z mapom??
+
+\subsection{Lastnosti OCamla}
+
+- je hiter
+- kodo lahko pišemo tudi proceduralno ali objektno, ni strikten funkcijskinjezik
+-tipi
+- varen (ni napak)
+- nespremenljivi tipi, to ni vedno ok -> rešitev so reference
+
+\subsection{Tipi in moduli}
+
+
+\section{Implementacija nevronske mreže}
+Del diplomske naloge je bila tudi implementacija nevronske mreže v jeziku OCaml. Cilj je bil implementirati generičen večslojni perceptron, kot učno pravilo sem uporabila vzvratno razširjanje napake. Zaradi generičnosti, lahko tako nevronsko mrežo prilagodimo in uporabimo na poljubnem primeru. Lahko tudi testiramo, kakšna mora biti topologija mreže in pa stopnja učenja, da bo mreža na danem primeru delovala optimalno. Celotna koda se nahaja na koncu naloge, v dodatku.
+
+\subsection{Primer nevronske mreže}
+Da ni ostalo le pri teoriji, sem mrežo testirala tudi na dejnaskem primeru. Za le to sem uporabila podatke o izposoji koles, pridobljwnw iz spletne strani %insert website. 
+
+\subsection{Ugotovitve}
+
+\section{Priloga} 
 
 \section*{Slovar strokovnih izrazov}
 
@@ -219,6 +555,8 @@ Kljub temu, da imajo nevronske mreže veliko pozitivnih lastnosti, ima pravilo v
 
 % seznam uporabljene literature
 \begin{thebibliography}{99}
+
+\bibitem{kononenko}I.~Kononenko in M.~ Kukar, \emph{Machine Learning and Data Mining: Introduction to Principles and Algorithms}, Horwood Publishing Limited, UK, 2007
 
 \bibitem{https://www.researchgate.net/publication/266396438_A_Gentle_Introduction_to_Backpropagation}
 

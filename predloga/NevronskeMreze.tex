@@ -65,6 +65,7 @@
 \psset{algebraic=true}
 
 \usepackage{subcaption} 
+\usepackage{nicefrac}
 
 
 
@@ -150,7 +151,7 @@ kjer je $W$ matrika uteži, $X$ pa vhodni vektor. Če enačbo zapišemo v vektor
 Cilj funkcije aktivacije je normalizirati vrednost, ki jo dobimo s funkcijo kombinacije. Glede na namen uporabe nevronske meže lahko uporabimo različne funkcije aktivacije. Najpogosteje se uporabljaljata stopničasta pragovna funkcija ali pa sigmoidna funkcija.
 %
 
-\emph{Stopničasta pragovna funkcija} nevron aktivira le, če je vrodnost dobljena z funkcijo aktivacije nad oziroma pod določeno mejo. Uporaba te funkcije je dokaj omejena, ker vhodnim podatkom pripiše le dve različni vrednosti, jo lahko uporabimo le pri klasifikaciji v dve kategoriji. Prav tako jo lahko uporabimo samo pri dvoslojnih perceptronih. Kot bomo videli v nadaljevanju, za večslojne perceptrone ni primerna, saj je njen odvod enak $0$, kar pa pomeni, da za učenje ne moremo uporabiti posplošenega pravila delta.
+\emph{Stopničasta pragovna funkcija} nevron aktivira le, če je vrodnost dobljena z funkcijo aktivacije nad oziroma pod določeno mejo. Uporaba te funkcije je dokaj omejena. Ker vhodnim podatkom pripiše le dve različni vrednosti, jo lahko uporabimo le pri klasifikaciji v dve kategoriji oziroma za reševanje linearnih problemov. Prav tako jo lahko uporabimo samo pri dvoslojnih perceptronih. Kot bomo videli v nadaljevanju, za večslojne perceptrone ni primerna, saj je njen odvod enak $0$, kar pa pomeni, da za učenje ne moremo uporabiti posplošenega pravila delta.
 %
 \begin{equation*}
 f(x)=
@@ -168,7 +169,7 @@ f(x)=
 \end{figure}
 %
 
-\emph{Sigmoidne funkcije} so nelinearne, zato se uporabljajo pri večslojnih perceptornih. So zvezne in neskončnokrat zvezno odvedljive, teko jih lahko uporabimo pri posplošenem pravilu delta. Odvisno na kateri interval želimo normalizirati izhodne vrednosti, uporabimo različne sigmoidne funkcije. Primera sigmoidne funkcije sta: 
+\emph{Sigmoidne funkcije} so nelinearne, zato se uporabljajo pri večslojnih perceptornih in reševanju nelinearnih problemov. So zvezne in neskončnokrat zvezno odvedljive, tako jih lahko uporabimo pri posplošenem pravilu delta. Odvisno na kateri interval želimo normalizirati izhodne vrednosti, uporabimo različne sigmoidne funkcije. Primera sigmoidne funkcije sta: 
 %
 \begin{equation}
 f(x) = \frac{1}{1+e^{-x}} \quad in \quad h(x) = \tanh(x) = \frac{e^x-e^{-x}}{e^x+e^{-x}} \text.
@@ -201,7 +202,8 @@ h'(x) = \left(\frac{\sinh(x)}{\cosh(x)}\right)' = \frac{\cosh^2(x)- \sinh^2(x)}{
 \end{figure}
 %
 %
-\\
+
+Katero funkcijo aktivacije bomo izbarli je odvisno od problema, ki ga želimo z mrežo obravnavati. \\
 
 Če združimo funkcijo kombinacije in funkcijo aktivacije, lahko napišemo pravilo za funkcijo nevrona, tj.~ izračun izhodnih vrednosti nevrona. Za posamezen nevron velja:
 %
@@ -269,12 +271,13 @@ kjer velja, da funkcijo aktivacije uporabimo na vsaki komponenti vektorja $WX$.
 Nevronske mreže odlikuje kar nekaj pozitivnih lastnosti. Najpomembnejše med njimi so sledeče:
 
 \textbf{Paralelizabilnost: }Posamičen nevron deluje relativno neodvisno od ostalih nevronov. Paralelizabilnost posledično pomeni zelo hitre operacije in omogoča uporabo nevronskih mrež pri reševanju kompleksnih problemov.
-%
+
 \textbf{Stabilnost: }Izgubljen ali nedelujoč nevron le malo pokvari natančnost delovanja nevronske mreže (več kot je takih nevronov, manj natančna je nevronska mreža). Nevronske mreže so tako stabilne v smislu uničenih nevronov in njihovih povezav. Poleg tega pa so stabilne tudi v smislu nepopolnih podatkov. To pomeni, da mrežo lahko naučimo pravilnega delovanja, tudi če v učnih priemrih del podatkov manjka. Velja pa, da bolj nepopolni kot so podatki, slabša je aproksimacija nevronske mreže.
-%
+
 \textbf{Matematično ozadje: }Nevronske mreže so tesno povezane z linearno algebro, predvsem z linearnimi preslikavami, lastnimi vrednostmi in vektorji ter negibnimi točkami.
 
-Glavna pomanjkljivost nevronskih mrež je določanje topologije mreže. Število nevronov v posameznem skritem sloju in število skritih slojev je odvisno od posameznega primera. Idealno topologijo nevronske mreže je tako težko doseči, do nje lahko pridemo le z ugibanjem. Še ena slaba lastnost pa je nezmožnost razlaganja odločitev (ang.~ balckbox). Zaradi kompleksne strukture je vsak rezultat mreže produkt večih neodvisnih operacij nevronov, ki jih ne moremo razložiti.
+Glavna pomanjkljivost nevronskih mrež je določanje topologije mreže. Medtem ko je število nevronov v vhodnem in izhodnem sloju določeno s problemom, je število nevronov v posameznem skritem sloju in število skritih slojev odvisno od posameznega primera. Idealno topologijo nevronske mreže je tako težko doseči, do nje lahko pridemo le s empirično s poskušanjem. Še ena slaba lastnost pa je nezmožnost razlaganja odločitev (ang.~ balckbox). Zaradi kompleksne strukture je vsak rezultat mreže produkt večih neodvisnih operacij nevronov, ki jih ne moremo razložiti.
+
 %
 %
 \subsection{Uporaba nevronskih mrež}
@@ -314,11 +317,11 @@ Pravilo delta temelji na gradientnem iskanju, vektor uteži popravljamo v negati
 \frac{dE(l)}{dW}= -2(d(l)-WX(l))X(l)
 \end{equation*}
 %
-Sedaj lahko zapišemo enačbo za pravilo delta:
+Sedaj lahko zapišemo enačbo za pravilo delta in nove vrednosti uteži $W^{N}$:
 %
 \begin{equation}
 \begin{aligned}
-W^{(NOV)} &= W - \eta\frac{dE(l)}{dW} \\
+W^{N} &= W - \eta\frac{dE(l)}{dW} \\
 &= W + \eta(d(l)-WX(l))X(l)
 \label{utezi}
 \end{aligned}
@@ -396,7 +399,7 @@ E(l) = \frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l)
 %
 Napako želimo minimalizirati in podobno kor prej s pomočjo gradientnega iskanja uteži popraviti v smeri negativnega odvoda napake $E$. Nove uteži izračunamo s pomočjo enake formule kot prej (enačba \eqref{utezi}):
 \begin{equation*}
-W^{NOV} = W - \eta \frac{dE}{dW}, 
+W^{N} = W - \eta \frac{dE}{dW}, 
 \end{equation*}
 %
 kjer $\eta$ označuje stopnjo učenja. 
@@ -456,69 +459,147 @@ Zaradi boljše preglednosti parcialni odvod zapišemo še malo drugače:
 %
 Označimo: 
 %
-\begin{equation*}
-\frac{\partial E(l)}{\partial A_i(l)} = \Delta^{(m+1)}_i 
-\end{equation*}
+\begin{equation}
+\frac{\partial E(l)}{\partial A_i(l)} = \Delta^{(m+1)}_i(l)
+\label{eq:deltaY}
+\end{equation}
 %
 Združimo vse zgornje rezultate in zapišemo pravilo za izračun novih uteži pri izhodnem sloju:
 %
 \begin{equation}
 \begin{aligned}
-W^{NOV(m+1)}_{ij} &= W ^{(m+1)}_{ij}- \eta \frac{dE(l)}{dW_{ij}^{(m+1)}} \\
-&= W ^{(m+1)}_{ij} -\eta  \Delta^{(m+1)}_i H_{mj}(l)\\
+W^{N(m+1)}_{ij} &= W ^{(m+1)}_{ij}- \eta \frac{dE(l)}{dW_{ij}^{(m+1)}} \\
+&= W ^{(m+1)}_{ij} -\eta  \Delta^{(m+1)}_i (l)H_{mj}(l)\\
 &= W ^{(m+1)}_{ij} -\eta e_i(l) f'(A_i(l))H_{mj}(l)\\
 \end{aligned}
 \end{equation}
 %
 Tako smo izpeljali pravilo za spremembno uteži, ki povezujejo izhodni sloj s predhodnikom. 
 
-Vzvratno razširjanje napake pride do izraza šele pri skritih slohjih. Ker ne moremo direktno izračunati napake $e_i$, si pri računanju pomagamo z že spremenjenimi utežmi v izhodnem sloju in pa $\Delta^{(m+1)}$, ki smo ga spotoma izračunali. Za uteži, ki povezujejejo zadnji skriti sloj nevronov z izhodnim lahko ob upoštevanju verižnega pravila zapišemo:
+Vzvratno razširjanje napake pride do izraza šele pri skritih slohjih. Ker ne moremo direktno izračunati napake $e_i$, si pri računanju pomagamo z že spremenjenimi utežmi v izhodnem sloju in pa $\Delta^{(m+1)}$, ki smo ga spotoma izračunali. Za uteži, ki povezujejo predzadnji in zadnji skriti sloj lahko ob upoštevanju verižnega pravila zapišemo:
 %
 \begin{equation*}
  \frac{\partial E(l)}{\partial W^{(m)}_{ij}} = \frac{\partial E(l)}{\partial A_{mi}(l)} \frac{\partial A_{mi}(l)}{\partial W^{(m)}_{ij}}
-= \Delta^{(m)}_i H_{m-1,j}
+%= \Delta^{(m)}_i (l)H_{m-1,j}
 \end{equation*}
 %
-Velja:
 %
 %OD TU NAPREJ DELAJ
+Drugi člen odvoda enostavno izračunamo
 \begin{equation*}
-frac{\partial A_{mi}(l)}{\partial W^{(m)}_{ij}}
+\frac{\partial A_{mi}(l)}{\partial W^{(m)}_{ij}} = H_{m-1,j}(l)
 \end{equation*}
 %
-in podobno kot prej zopet označimo:
+in podobno kot prej označimo
 %
 \begin{equation*}
-\frac{\partial E(l)}{\partial A_{mi}(l)}
+\frac{\partial E(l)}{\partial A_{mi}(l)} = \Delta^{(m)}_i(l)
 \end{equation*}
-%
-Odvod %h po a 
-že poznamo: ,
-%
-\begin{equation*}
-\end{equation*}
-%
-izračunati moramo le še odvod..
-%
-\begin{equation*}
-\end{equation*}
-%
 
+Zopet uporabimo verižno pravilo za odvajanje in zapišemo:
 %
 \begin{equation*}
+\Delta^{(m)}_i(l) = \frac{\partial E(l)}{\partial A_{mi}(l)}  = \frac{\partial E(l)}{\partial H_{mi}(l)}\frac{\partial H_{mi}(l)}{\partial A_{mi}(l)}
 \end{equation*}
 %
-
+Odvod $\nicefrac{\partial H_{mi}(l)}{\partial A_{mi}(l)}$ je odvod funkcije aktivacije:
+%
+\begin{equation*}
+\frac{\partial H_{mi}(l)}{\partial A_{mi}(l)} =  f'(A_{mi}(l)) \text,
+\end{equation*}
+%
+$\nicefrac{\partial E(l)}{\partial H_{mi}(l)}$ pa zopet razpišemo s pomočjo verižnega pravila
+%
+\begin{equation*}
+\begin{aligned}
+\frac{\partial E(l)}{\partial H_{mi}(l)} &=  \sum^{N_Y}_{j=1} \frac{\partial E(l)}{\partial A_j(l)}\frac{\partial A_j(l)}{\partial H_{mi}(l)}  \\
+& =   \sum^{N_Y}_{j=1} \frac{\partial E(l)}{\partial A_j(l)}\frac{\partial(\sum^{N_m}_{p=1} W^{N (m+1)}_{pj}H_{mp}(l))}{\partial H_{mi}(l)} \\
+&= \sum^{N_Y}_{j=1} \frac{\partial E(l)}{\partial A_j(l)} W^{N (m+1)}_{ji}
+\end{aligned}
+\end{equation*}
+%
+Pri tem velja, da so elementi matrike uteži $W^{N(m+1)}$ vrednosti, ki smo jih že popravili v prejšnjem koraku. Uporabimo enačbo \eqref{eq:deltaY} in izrazimo vrednost $\Delta^{(m)}_i(l)$ sledeče:
+%
+\begin{equation*}
+\begin{aligned}
+\Delta^{(m)}_i(l) &= f'(A_{mi}(l))  \sum^{N_Y}_{j=1} \frac{\partial E(l)}{\partial A_j(l)} W^{N (m+1)}_{ji} \\
+&= f'(A_{mi}(l))  \sum^{N_Y}_{j=1} \Delta ^{(m+1)}_j(l)W^{N (m+1)}_{ji}
+\end{aligned}
+\end{equation*}
+%
+Vse združimo in vstavimo v enačbo za izračun spremenjenih uteži $W^{N(m)}$ ter dobimo:
+%
+\begin{equation}
+\begin{aligned}
+W^{N(m)}_{ij} &= W^{(m)}_{ij} - \eta\frac{dE(l)}{dW_{ij}^{(m)}} \\
+&= W ^{(m)}_{ij} -\eta  \Delta^{(m)}_i (l)H_{m-1,j}(l)\\
+&= W ^{(m)}_{ij} -\eta f'(A_{mi}(l))  \left(\sum^{N_Y}_{p=1} \Delta ^{(m+1)}_p(l)W^{N (m+1)}_{pi}\right)H_{m-1,j}(l)\\
+\end{aligned}
+\end{equation}
+%
+Za uteži $W^{(k)}$, ki povezujejo poljuben $k-1$ in $k$-ti skriti sloj, kjer je $1 < k < m$, podobno zapišemo:
+%
+\begin{equation*}
+\frac{\partial A_{ki}(l)}{\partial W^{(k)}_{ij}} = H_{k-1,j}(l)
+\end{equation*}
+%
+in 
+%
+\begin{equation*}
+\Delta^{(k)}_i(l) =  f'(A_{ki}(l))  \sum^{N_{k+1}}_{j=1} \Delta ^{(k+1)}_j(l)W^{N (k+1)}_{ji}
+\end{equation*}
+%
+Spremenjene uteži nato izračunamo sledeče:
+%
+\begin{equation}
+\begin{aligned}
+W^{N(k)}_{ij}&= W ^{(k)}_{ij} -\eta  \Delta^{(k)}_i (l)H_{k-1,j}(l)\\
+&= W ^{(k)}_{ij} -\eta f'(A_{ki}(l))  \left(\sum^{N_{k+1}}_{p=1} \Delta ^{(k+1)}_p(l)W^{N (k+1)}_{pi}\right)H_{k-1,j}(l)\\
+\end{aligned}
+\end{equation}
+%
+Ostane nam le še matrika uteži $W^{(1)}$, ki povezuje vhodni sloj s prvim skritim slojem. Zapišemo:
+%
+\begin{equation*}
+\frac{\partial A_{1i}(l)}{\partial W^{(1)}_{ij}} = X_j(l)
+\end{equation*}
+%
+in 
+%
+\begin{equation*}
+\Delta^{(1)}_i(l) =  f'(A_{1i}(l))  \sum^{N_{2}}_{j=1} \Delta ^{(2)}_j(l)W^{N (2)}_{ji}
+\end{equation*}
+%
+Uteži pa popravimo po sledečo formuli:
+%
+\begin{equation}
+\begin{aligned}
+W^{N(1)}_{ij}&= W ^{(1)}_{ij} -\eta  \Delta^{(1)}_i (l)X_j(l)\\
+&= W ^{(1)}_{ij} -\eta f'(A_{1i}(l))  \left(\sum^{N_{2}}_{p=1} \Delta ^{(2)}_p(l)W^{N (2)}_{pi}\right)X_j(l)\\
+\end{aligned}
+\end{equation}
+%
+%
+Tako smo izpeljali pravilo za računanje spremembe uteži pri vzvratnem razširjanju napake.
+%
 \subsection{Lastnosti vzvratnega razširjanja napake}
-Kljub temu, da imajo nevronske mreže veliko pozitivnih lastnosti, ima pravilo vzvratnega razširjanja napake tudi nekaj pomanjkljivosti.
-  
--stopnjo učenja moramo določiti empirično, stopnja učenja vpliva na gradientno metodo, eta vpliva kako hitro bomo prišli do minimuma 
--topologijo določimo empirično, ni pravila, s poskušanjem
--ni nujno da konvergira k optimalni mreži, lahko limitira k lokalnemu optimumu kar ni generalno najbolje, kam bo limitiralo odvisno oz začetnih uteži, če ni ok učenje ponovimo
-- potrebno veliko število učnih primerov da mreža pravilno deluje, 10 alo 100 tisoč da dejansko ok deluje
+Kljub temu, da je vzvratno razširjanje napake zelo priljubljeno pravilo pri učenju nevronskih mrež, ima tudi nekaj pomanjkljivosti. 
 
-Rešitev: 
+Gradientno iskanje temelji na iskanju lokalnega minimuma, posledično uteži ne konvergirajo vedno k globalno najboljši izbiri. Lahko se zgodi, da bo matrika uteži konvergirala k lokalnemu optimumu, taka mreža ne bo dajala zadovoljivih rezultatov. Kam bodo uteži konvergirale je odvisno predvsem od njihove začetne izbire. Če med učenjem pride do omenjenega problema moramo izbrati novo naključno matriko uteži in učenje ponoviti v upanju, da bodo uteži tokrat konvergirale k optimalnim.
 
+Naslednji problem, ki se pojavi kot posledica gradientnega iskanja je določanje parametra $\eta$. Stopnja učenja določa kako hitro in kam bo mreža konvergirala. Žal pa ni pravila, ki bi določal kakšno vrednost je za $\eta$ najbolje izbrati. Do take vrednosti lahko pridemo le s poskušanjem.
+
+Slabost vzvratnega razširjanja napake je tudi to, da je za učenje nevronske mreže potrebno zelo veliko število učnih primerov. Ponavadi se to število giblje med nekaj $10000$ in $100000$. Posledično je učenje lahko zelo zamudno.
+
+Potrebno je omeniti še časovno zahtevnost, zaradi svoje kompleksne zgradbe so nevronske mreže zelo časovno potratne in njihovo učenje praviloma ni hitro. Z večjo mrežo le to zahtevnost še povečamo. Kljub temu, pa lahko z različnimi implementacijami malo vplivamo na hitrost mreže.
+%
+%-stopnjo učenja moramo določiti empirično, stopnja učenja vpliva na gradientno metodo, eta vpliva kako hitro bomo prišli do minimuma 
+%-topologijo določimo empirično, ni pravila, s poskušanjem
+%-ni nujno da konvergira k optimalni mreži, lahko limitira k lokalnemu optimumu kar ni generalno najbolje, kam bo limitiralo odvisno oz začetnih uteži, če ni ok učenje ponovimo
+%- potrebno veliko število učnih primerov da mreža pravilno deluje, 10 alo 100 tisoč da dejansko ok deluje
+%
+%Rešitev: 
+%
 \section{Funkcijski programski jezik OCaml}
 OCaml spada med funkcijske programse jezike. Poleg funkcijskih poznamo še objektne in proceduralne programske jezike. Sicer je res, da ima  vsak način programiranja svoje prednosti in slabosti, ampak dejansko gledano, so to le različni načini pisanja kode.
 

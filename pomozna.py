@@ -9,4 +9,12 @@ def identiteta (n):
             writer.writerow([1/i,1/i])
 
         
-identiteta(10000)
+#identiteta(10000)
+
+
+import pandas as pd
+
+data = pd.read_csv('day.csv')[:600]
+
+print(data.mean())
+print(data.std())

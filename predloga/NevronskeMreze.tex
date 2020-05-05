@@ -1,3 +1,5 @@
+% !TeX document-id = {c15effce-b4cb-4262-806c-f65e49a6612b}
+% !TeX TXS-program:compile = txs:///pdflatex/[--shell-escape]
 \documentclass[mat1]{fmfdelo}
 % \documentclass[fin1]{fmfdelo}
 % \documentclass[isrm1]{fmfdelo}
@@ -54,6 +56,8 @@
 % vstavite svoje definicije ...
 %  \newcommand{}{}
 
+
+%\usepackage{minted}
 \usepackage{neuralnetwork}
 \usepackage{epstopdf}
 \usepackage{graphicx}
@@ -67,9 +71,7 @@
 \usepackage{subcaption} 
 \usepackage{nicefrac}
 
-
-
-
+%\usepackage[ruled,vlined]{algorithm2e}
 
 
 \begin{document}
@@ -601,10 +603,23 @@ Potrebno je omeniti še časovno zahtevnost, zaradi svoje kompleksne zgradbe so 
 %Rešitev: 
 %
 \section{Funkcijski programski jezik OCaml}
-OCaml spada med funkcijske programse jezike. Poleg funkcijskih poznamo še objektne in proceduralne programske jezike. Sicer je res, da ima  vsak način programiranja svoje prednosti in slabosti, ampak dejansko gledano, so to le različni načini pisanja kode.
+OCaml spada med funkcijske programse jezike. Poleg funkcijskih poznamo še objektne in proceduralne programske jezike. Vsi načini programiranja imajo svoje prednosti in slabosti. Ponavadi se za programski jezik odločimo glede problem, ki ga želimo rešiti. 
 
+Sama sem se za OCaml odločila, ker so implementacije nevronskih mrež v funkcijskih programskih jezikih zelo redke in mi je to predstavljalo izziv. 
+%
 \subsection{Lastnosti funkcijskih programskih jezikov}
-V funkcijskem programiranju so osnovni objekti funkcije. To pomeni, da lahko kot spremenljivko v funkciji podamo kar funkcijo. Tako funkcijam, ki kot argument lahko sprejmejo drugo funkcijo, pravimo funkcije višjega reda (higher-order function). Funkcijsko programiranje je zelo efektivno pri rekurzivnih funkcijah. 
+V funkcijskem programiranju so osnovni objekti funkcije. To pomeni, da lahko funkcije sprejmejo ozrioma vračajo druge funkcije, poleg tega lahko funkcije shranimo v podatkovne strukture. Funkcijam, ki kot argument sprejmejo funkcije pravimo \emph{funkcije višjega reda}. Ena izmed osnovnih funkcij višjega reda je na primer funkcija map. Le ta sprejme podatkovno strukturo, naprimer seznam ali tabelo, in na vsakem njenem elementu uporabi funkcijo, ki smo jo podali kot argument.
+
+%\begin{minted}{ocaml}
+%type 'a t = { name : string; mutable info : 'a};;
+%let p = { name = "John"; info = 23 };;
+%let double_quote = '"'
+%let broken_highlight = ()
+%\caption{Example from external file}
+%\label{listing:3}
+%\end{minted}
+
+% To pomeni, da lahko kot spremenljivko funkciji podamo kar funkcijo. Tako funkcijam, ki kot argument lahko sprejmejo drugo funkcijo, pravimo funkcije višjega reda (higher-order function). Funkcijsko programiranje je zelo efektivno pri rekurzivnih funkcijah. 
 
 %Primer z mapom??
 
@@ -628,6 +643,7 @@ Da ni ostalo le pri teoriji, sem mrežo testirala tudi na dejnaskem primeru. Za 
 \subsection{Ugotovitve}
 
 \section{Priloga} 
+%\inputminted{ocaml}{nevronske_mreze.ml}
 
 \section*{Slovar strokovnih izrazov}
 

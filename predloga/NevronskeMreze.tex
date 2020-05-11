@@ -57,7 +57,7 @@
 %  \newcommand{}{}
 
 
-%\usepackage{minted}
+\usepackage{minted}
 \usepackage{neuralnetwork}
 \usepackage{epstopdf}
 \usepackage{graphicx}
@@ -306,7 +306,7 @@ Z razvojem strojne opreme v zadnjih letih so močno napredovale tudi nevronske m
 \end{itemize}
 %
 \section{Učenje}
-Najprej je smiselno definirati, kaj pojem učenje sploh pomeni. Po \cite[str.~37]{kononenko} za učenje potrebujemo sistem, ki strmi k izpolnitvi določene naloge oziroma cilja. Pred učenjem sistem ni sposoben zadostno opraviti naloge. S ponavljanjem določenih opravil poskušamo sistem pripraviti do tega, da bo deloval bolje, kjer je bolje lahko hitreje, ceneje, bolj pravilno\ldots Učenje lahko torej definiramo kot zaporedje ponovitev, kjer pri vsaki ponovitvi skušamo zmanjšati napako tako, da bi se zastavljenemu cilju čimbolj približali. 
+Najprej je smiselno definirati, kaj pojem učenje sploh pomeni. Po \cite[str.~37]{kononenko} za učenje potrebujemo sistem, ki strmi k izpolnitvi določene naloge oziroma cilja. Pred učenjem sistem ni sposoben zadostno opraviti naloge. S ponavljanjem določenih opravil poskušamo sistem pripraviti do tega, da bo deloval bolje, kjer je bolje lahko hitreje, ceneje, bolj pravilno\ldots\ Učenje lahko torej definiramo kot zaporedje ponovitev, kjer pri vsaki ponovitvi skušamo zmanjšati napako tako, da bi se zastavljenemu cilju čimbolj približali. 
 
 Obstaja kar nekaj različnih pravil, kako umetno nevronsko mrežo naučiti pravilnega delovanja. V svoji diplomski nalogi sem se osredotočila na posplošeno pravilo delta oziroma vzvratno razširjanje napake, ki je nekako standaren algoritem za učenje pri večslojnih perceptronih. 
 %
@@ -670,7 +670,7 @@ Podatke normaliziramo po sledeči enačbi:
 X_{norm} = \frac{X -X_{min}}{X_{max}-X_{min}}
 \end{equation}
 %
-Tako podatke skrčimo na interval med $0$ in $1$. 
+Tako podatke skrčimo na interval $[0,1]$. 
 %
 \subsection{Z-score normalizacija}
 Cilj je podatke preoblikovati tako, da bomo dobili strandardno normalno porazdelitev z povprečjem $0$ in standardnim odkolonom $1$. To dosežemo, če podatke preoblikujemo po sledeči enačbi:
@@ -682,46 +682,50 @@ X_{norm} = \frac{X - \mu}{\sigma} \text,
 pri čemer velja, da je $\mu$  povprečna vrednost in $\sigma$ standardni odklon podatkov.
 %
 \section{Funkcijski programski jezik OCaml}
-OCaml spada med funkcijske programske jezike. Poleg funkcijskih poznamo še objektne in proceduralne programske jezike. Vsi načini programiranja imajo svoje prednosti in slabosti. Način programiranja in programski jezik izberemo na podlagi več dejavnikov -- včasih izberemo tak jezik, da bo program deloval kar se da hitro, drugič izberemo jezik v katerem bo zastavljeni problem najlažje rešljiv.
+Poleg funkcijskih poznamo še objektne in proceduralne programske jezike. Vsi načini programiranja imajo svoje prednosti in slabosti. Funkcijsko programiranje je zelo priljubljeno za pisanje generičnih algoritmov in algoritmov, ki temeljijo na rekurziji. 
 
+Način programiranja in programski jezik izberemo na podlagi več dejavnikov -- včasih izberemo tak jezik, da bo program deloval kar se da hitro, drugič izberemo jezik v katerem bo zastavljeni problem najlažje rešljiv.
 Sama sem se za OCaml odločila, ker so implementacije nevronskih mrež v funkcijskih programskih jezikih zelo redke in mi je to predstavljalo izziv. 
 %
 \subsection{Lastnosti funkcijskih programskih jezikov}
-V funkcijskem programiranju so osnovni objekti funkcije. To pomeni, da lahko funkcije sprejmejo ozrioma vračajo druge funkcije, poleg tega lahko funkcije shranimo v podatkovne strukture. Funkcijam, ki kot argument sprejmejo druge funkcije pravimo \emph{funkcije višjega reda}. Ena izmed osnovnih funkcij višjega reda je na primer funkcija map. Le ta sprejme podatkovno strukturo, naprimer seznam ali tabelo, in na vsakem njenem elementu uporabi funkcijo, ki smo jo podali kot argument.
-
-%\begin{minted}{ocaml}
-%type 'a t = { name : string; mutable info : 'a};;
-%let p = { name = "John"; info = 23 };;
-%let double_quote = '"'
-%let broken_highlight = ()
-%\caption{Example from external file}
-%\label{listing:3}
-%\end{minted}
-
-% To pomeni, da lahko kot spremenljivko funkciji podamo kar funkcijo. Tako funkcijam, ki kot argument lahko sprejmejo drugo funkcijo, pravimo funkcije višjega reda (higher-order function). Funkcijsko programiranje je zelo efektivno pri rekurzivnih funkcijah. 
-
-%Primer z mapom??
-
+V funkcijskem programiranju so osnovni objekti funkcije. To pomeni, da lahko funkcije sprejmejo ozrioma vračajo druge funkcije, poleg tega lahko funkcije shranimo v podatkovne strukture. Funkcijam, ki kot argument sprejmejo druge funkcije pravimo \emph{funkcije višjega reda}. Ena izmed osnovnih funkcij višjega reda je na primer funkcija \texttt{map}. Le ta sprejme podatkovno strukturo, naprimer seznam ali tabelo, in na vsakem njenem elementu uporabi funkcijo, ki smo jo podali kot argument.
+%
+\begin{listing}[!h]
+\begin{minted}{ocaml}
+val activation_layer : ('a -> 'b) -> 'a array -> 'b array = <fun>
+let activation_layer funct layer =
+	Array.map funct layer
+\end{minted} 
+\caption{Primer uporabe funkcije map, ki funkcijo aktivacije uporabi na sloju nevronov, ki ga podamo s tabelo}
+\label{algoritem}
+\end{listing}
+%
+\subsubsection{Čiste funkcije}
+Funkcija je čista (ang. pufe function), če med izvajanjem ne sproži nobenih stranskih učinkov kot so npr.\ izpisovanje na zaslon, branje z tipkovnice, spreminjanje vrednosti spremenljivk\ldots\ Poleg tega čiste funkcije pri enakih argumentih vedno vračajo enak rezultat, posledično lahko tako funkcijo vedno zamenjamo z njeno definicijo.  Čiste funkcije v praksi pomenijo manj napak med programiranjem, če se le te že pojavijo, jih je lahko najti in odpraviti. V funkcijskem programiranju je večina funkcij čistih, saj funkcije načeloma vrednosti ne spreminjajo, ampak jih vračajo. 
 \subsection{Lastnosti OCamla}
+OCaml je splošen programski jezik, kljub temu da ima veliko lastnosti funkcijskih jezikov. Poleg le teh, ima OCaml tudi lastnosti objektnega programiranja. 
+Posledično OCaml odlikuje kar nekaj pozitivnih lastnosti. Izvajanje kode je hitro in učinkovito, jezik ima velik poudarek tudi na varnosti, zato do napak le redko prihaja.
 
-- je hiter
-- kodo lahko pišemo tudi proceduralno ali objektno, ni strikten funkcijskinjezik
--tipi
-- varen (ni napak)
-- nespremenljivi tipi, to ni vedno ok -> rešitev so reference
+Funkcije v OCamlu so večinoma čiste, ne drži pa to vedno. S pomočjo referenc lahko namreč spreminjamo vrednosti spremenljivk. Zaradi narave nevronskih mrež sem to lastnost pri implementaciji izkoristila kar nekajkrat.
 
-\subsection{Tipi in moduli}
+Dobra lastnost OCamla je tudi, da optimizira repno rekurzijo. Klic funkcije je repen, če se izvede zadnji. Pri rekurziji gre omeniti še OCamlovo sposobnost efektivnega ujemanja vzorcev. 
 
-
+OCaml ima dobro podprt sistem tipov. Tipi v OCamlu so statični, a se tudi tej lastnosti v določenih situacijah da izogniti z referencami. Jezik omogoča pisanje polimorfnih funkcij, tako da le te delujejo na poljubnem tipu vhodnih podatkov, kar je pri programiranju dostikrat zaželjeno. 
+%
+%
+%-tipi
+%- nespremenljivi tipi, to ni vedno ok -> rešitev so reference
+%
+%\subsection{Tipi in moduli}
 \section{Implementacija nevronske mreže}
-Del diplomske naloge je bila tudi implementacija nevronske mreže v jeziku OCaml. Cilj je bil implementirati generičen večslojni perceptron, kot učno pravilo sem uporabila vzvratno razširjanje napake. Zaradi generičnosti, lahko tako nevronsko mrežo prilagodimo in uporabimo na poljubnem primeru. Lahko tudi testiramo, kakšna mora biti topologija mreže in pa stopnja učenja, da bo mreža na danem primeru delovala optimalno. Celotna koda se nahaja na koncu naloge, v dodatku.
+Del diplomske naloge je bila tudi implementacija nevronske mreže v jeziku OCaml. Cilj je bil implementirati generičen večslojni perceptron, kot učno pravilo sem uporabila vzvratno razširjanje napake. Zaradi generičnosti, lahko tako nevronsko mrežo prilagodimo in uporabimo na poljubnem primeru. Lahko tudi testiramo, kakšna mora biti topologija mreže in pa stopnja učenja, da bo mreža na danem primeru delovala optimalno. Celotna koda se nahaja na koncu naloge, v prilogi \ref{priloga}.
 
 \subsection{Primer nevronske mreže}
-Da ni ostalo le pri teoriji, sem mrežo testirala tudi na dejnaskem primeru. Za le to sem uporabila podatke o izposoji koles, pridobljwnw iz spletne strani %insert website. 
+%Da ni ostalo le pri teoriji, sem mrežo testirala tudi na dejnaskem primeru. Za le to sem uporabila podatke o izposoji koles, pridobljwnw iz spletne strani %insert website. 
 
 \subsection{Ugotovitve}
 
-\section{Priloga} 
+\section{Priloga} \label{priloga}
 %\inputminted{ocaml}{nevronske_mreze.ml}
 
 \section*{Slovar strokovnih izrazov}
@@ -732,23 +736,36 @@ Da ni ostalo le pri teoriji, sem mrežo testirala tudi na dejnaskem primeru. Za 
 \geslo{blackbox}{"črna škatla" (nezmožnost razlaganja odločitev nevronske mreže)}
 \geslo{higher-order functions}{funkcije višjega reda}
 \geslo{overfitting}{preprileganje}
+\geslo{pure function}{čista funkcija}
 \geslo{supervised learning}{nadzorovano učenje}
 \geslo{step function}{stopničasta pragovna funkcija}
 \geslo{undeffitting}{neprileganje}
-\geslo{}{}
-\geslo{}{}
-\geslo{}{}
+%\geslo{}{}
+
 
 % seznam uporabljene literature
 \begin{thebibliography}{99}
 
 \bibitem{kononenko}I.~Kononenko in M.~ Kukar, \emph{Machine Learning and Data Mining: Introduction to Principles and Algorithms}, Horwood Publishing Limited, UK, 2007
 
-\bibitem{intro}%https://www.researchgate.net/publication/266396438_A_Gentle_Introduction_to_Backpropagation
+\bibitem{mreze1}\emph{Neural Networks}, [ogled 15.~4.~2020], dostopno na \url{https://cs.stanford.edu/people/eroberts/courses/soco/projects/neural-networks/History/history1.html}.
 
-\bibitem{bias}https://missinglink.ai/guides/neural-network-concepts/neural-network-bias-bias-neuron-overfitting-underfitting/
+\bibitem{fact}\emph{Understanding Activation Functions in Neural Networks}, v: Medium, [ogled 20.~4.~2020], dostopno na \url{https://medium.com/the-theory-of-everything/understanding-activation-functions-in-neural-networks-9491262884e0}.
 
-\bibitem{}
+\bibitem{bias}\emph{Neural Network Bias: Bias Neuron, Overfitting and Underfitting}, [ogled 25.~4.~2020], dostopno na \url{https://missinglink.ai/guides/neural-network-concepts/neural-network-bias-bias-neuron-overfitting-underfitting/}.
+
+\bibitem{intro}S.~Sathyanarayana, \emph{A Gentle Introduction to Backpropagation}, v: Numeric Insight, Inc Whitepaper, 2014 [ogled 20.~4.~2020], dostopno na \url{https://www.researchgate.net/publication/266396438_A_Gentle_Introduction_to_Backpropagation}
+
+\bibitem{kolesa}H.~Fanaee-T in J.~Gama \emph{Event labeling combining ensemble detectors and background knowledge}, v:  Progress in Artificial Intelligence (2013): pp. 1-15, Springer Berlin Heidelberg, [ogled 15.~3.~2020], dostopno na \url{https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset}.
+
+\bibitem{Ocaml1} \emph{https://ocaml.org/learn/description.html}, [ogled 5.~5.~2020], dostopno na \url{https://ocaml.org/learn/description.html}.
+%do tu je ok
+%do tu je ok
+
+
+
+%\bibitem{Ocaml2} 
+
 
 \end{thebibliography}
 

@@ -223,7 +223,7 @@ izhod:
 	weights 
 	
 (*TESTNO, sprejme tabelo z matrikami uteži, ne ustvari sama*)
-let train_with_input_weights input_array output_array network_topology rate weights act_fun act_der =
+let train_with_input_weights input_array output_array network_topology rate w act_fun act_der =
 	let network = initialize_network network_topology in
 	(* let w = Array.copy weights in *)
 	let mean_in = mean input_array in
@@ -235,15 +235,15 @@ let train_with_input_weights input_array output_array network_topology rate weig
 		let norm_input_array = norm_z_score input_array.(i) mean_in std_dev_in in
 		let norm_output_array = norm_z_score output_array.(i) mean_out std_dev_out in
 		let pom = ref (learning_example  norm_input_array norm_output_array network w rate act_fun act_der) in
-		for i = 0 to (Array.length weights)-1 do
+		for i = 0 to (Array.length w)-1 do
 			w.(i) <- !pom.(i);
 		done;
 	done;
 	w 
 
 (* daš notri naučene uteži in topology in input in vrne napoved	 *)
-let predict input network_topology weights act_fun =
-	let network = initialize_network network_topology in
+let predict input network weights act_fun =
+	(* let network = initialize_network network_topology in *)
 	let n = Array.length network in
 		network.(0) <- input;
    	for i = 0 to n-2 do
@@ -251,6 +251,35 @@ let predict input network_topology weights act_fun =
 	done;
 	network.(n-1)
 	
+(**)	
+let evaluate test_input test_output weights network_topology act_fun mean_in std_in mean_out std_out =	
+	let network = initialize_network network_topology in
+	let n = Array.length test_input in
+	let o1 = Array.length test_output.(0) in
+	let error = Array.make_matrix n o1 0. in
+	for i=0 to n-1 do
+		let prediction = predict (norm_z_score test_input.(i) mean_in std_in) network weights act_fun in
+		let norm_pred = denorm_z_score prediction mean_out std_out in 
+		for j=0 to o1-1 do		
+			let e_j = abs_float (norm_pred.(j) -. test_output.(i).(j)) in 
+			(* let () = print_newline () in *)
+			(* let () = print_endline "output: " in *)
+			(* norm_pred.(j) |> print_float; *)
+			(* let () = print_newline () in *)
+			(* let () = print_endline "target: " in *)
+			(* test_output.(i).(j) |> print_float; *)
+			(* let () = print_newline () in *)
+			(* let () = print_endline "error: " in *)
+			(* e_j |> print_float; *)
+			error.(i).(j) <- e_j;
+			(* let () = print_endline "train_network: " in  *)
+			(* error.(i) |> (Array.iter print_float);			 *)
+		done;
+	done;
+	let e_m = mean error in
+	e_m
+	
+
 
 
 

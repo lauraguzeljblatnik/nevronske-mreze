@@ -262,27 +262,66 @@ let evaluate test_input test_output weights network_topology act_fun mean_in std
 		let norm_pred = denorm_z_score prediction mean_out std_out in 
 		for j=0 to o1-1 do		
 			let e_j = abs_float (norm_pred.(j) -. test_output.(i).(j)) in 
-			(* let () = print_newline () in *)
-			(* let () = print_endline "output: " in *)
-			(* norm_pred.(j) |> print_float; *)
-			(* let () = print_newline () in *)
-			(* let () = print_endline "target: " in *)
-			(* test_output.(i).(j) |> print_float; *)
-			(* let () = print_newline () in *)
-			(* let () = print_endline "error: " in *)
-			(* e_j |> print_float; *)
 			error.(i).(j) <- e_j;
-			(* let () = print_endline "train_network: " in  *)
-			(* error.(i) |> (Array.iter print_float);			 *)
 		done;
 	done;
 	let e_m = mean error in
 	e_m
 	
+	
+(*n-krat požene evaluate na n različnih mrežah, n krat nauči in pogleda napako*)
+let analysis_error train_input train_output test_input test_output network_topology act_fun act_der rate n =
+	let o1 = Array.length test_output.(0) in
+	let e = Array.make_matrix n o1 0. in
+	let mean_in = mean train_input in
+	let mean_out = mean train_output in
+	let std_in = std train_input mean_in in
+	let std_out = std train_output mean_out in
+	for i=0 to (n-1) do
+		(* let unlearned_pred = predict test_input network_topology trained_w act_fun in  *)
+		let trained_w = train_network train_input train_output network_topology rate 1.0 act_fun act_der in
+		(* let prediction = predict test_input.(i) network_topology trained_w act_fun in  *)
+		let error = evaluate test_input test_output trained_w network_topology act_fun mean_in std_in mean_out std_out in
+		(* error|> (Array.iter(print_float)); *)
+		e.(i) <- error;
+	done;
+	let e_m = mean e in
+	e_m
+	
+let analysis_unlearned train_input train_output test_input test_output network_topology act_fun act_der rate n =
+	let o1 = Array.length test_output.(0) in
+	let e = Array.make_matrix n o1 0. in
+	let mean_in = mean train_input in
+	let mean_out = mean train_output in
+	let std_in = std train_input mean_in in
+	let std_out = std train_output mean_out in
+	for i=0 to (n-1) do
+		(* let unlearned_pred = predict test_input network_topology trained_w act_fun in  *)
+		let w = create_weights_matrix network_topology 1.0 in
+		(* let prediction = predict test_input.(i) network_topology trained_w act_fun in  *)
+		let error = evaluate test_input test_output w network_topology act_fun mean_in std_in mean_out std_out in
+		(* error|> (Array.iter(print_float)); *)
+		e.(i) <- error;
+	done;
+	let e_m = mean e in
+	e_m
 
-
-
-
-
-
-
+let learned_vs_unlearned train_input train_output test_input test_output network_topology act_fun act_der rate n =
+	let o1 = Array.length test_output.(0) in
+	let count = Array.make o1 0 in
+	let mean_in = mean train_input in
+	let mean_out = mean train_output in
+	let std_in = std train_input mean_in in
+	let std_out = std train_output mean_out in
+	for i=0 to (n-1) do
+		let w = create_weights_matrix network_topology 1.0 in
+		let error_unlearned = evaluate test_input test_output w network_topology act_fun mean_in std_in mean_out std_out in
+		let trained_w = train_with_input_weights train_input train_output network_topology rate w act_fun act_der in
+		let error_learned = evaluate test_input test_output trained_w network_topology act_fun mean_in std_in mean_out std_out in
+		for j=0 to (o1-1) do
+			if (error_unlearned.(j) > error_learned.(j)) 
+			then count.(j) <- count.(j) + 1
+			else count.(j) <- count.(j) - 1
+		done;
+	done;
+	count

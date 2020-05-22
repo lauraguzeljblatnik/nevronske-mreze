@@ -1,8 +1,8 @@
 #use "nevronske_mreze.ml";;
 #use "csv_ocaml.ml";;
 	
-let topology = [|11;5;15;6;3|]	
-let rate = 0.01
+let topology = [|11;50;3|]	
+let rate = 0.4
 
 let network = initialize_network topology 
 
@@ -54,3 +54,8 @@ let error_mean_trained = evaluate test_examples test_out trained_weights topolog
 let error_mean_untrained = evaluate test_examples test_out w topology sigmoid mean_i std_i mean_o std_o
 
 let error_mean_trained_input = evaluate test_examples test_out trained_w_input topology sigmoid mean_i std_i mean_o std_o
+
+let analysis1 = analysis_error input out test_examples test_out topology sigmoid d_sigmoid rate 50 
+let analysis2 = analysis_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50 
+let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50 
+

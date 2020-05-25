@@ -1,8 +1,11 @@
 #use "nevronske_mreze.ml";;
 #use "csv_ocaml.ml";;
 	
-let topology = [|11;15;3|]	
-let rate = 0.001
+let topology = [|11;10;3|]	
+let rate = 1.0
+
+let r_ana = [|0.00001; 0.00005; 0.0001; 0.0005; 0.001; 0.005; 0.01; 0.05; 0.1; 0.5; 1.0; 5.0; 10.; 50.; 100.0;500.0; 1000.0|]
+
 
 let network = initialize_network topology 
 
@@ -55,9 +58,13 @@ let error_mean_untrained = evaluate test_examples test_out w topology sigmoid me
 
 let error_mean_trained_input = evaluate test_examples test_out trained_w_input topology sigmoid mean_i std_i mean_o std_o
 
-(* let analysis1 = analysis_error input out test_examples test_out topology sigmoid d_sigmoid rate 50  *)
+let analysis1 = analysis_error input out test_examples test_out topology sigmoid d_sigmoid rate 50 
 (* let analysis2 = analysis_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50  *)
-(* let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50  *)
+let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50 
 
-let bias_trained = bias test_examples test_out trained_weights topology sigmoid mean_i std_i mean_o std_o
-let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o
+(* let bias_trained = bias test_examples test_out trained_weights topology sigmoid mean_i std_i mean_o std_o *)
+(* let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o *)
+
+(* let rate_ana = rate_analysis r_ana input out test_examples test_out topology sigmoid d_sigmoid *)
+
+let top_ana = topology_analysis 51 100 input out test_examples test_out sigmoid d_sigmoid 0.5

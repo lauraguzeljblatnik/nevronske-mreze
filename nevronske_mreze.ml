@@ -1,19 +1,21 @@
-(* NEURAL NETWORK*)
+(* NEVRONSKA MREŽA *)
 
-(*aktivacijska funkcija za posamezen nevron - sigmoida*)
+(*aktivacijska funkcija za posamezen nevron - sigmoida *)
 let sigmoid neuron =
 	1. /. (1. +. exp(-. neuron))
 		
-(*odvod sigmoide za posamezen izhodni nevron, sprejme output - to kar mreža dobi
-odvod sigmoide je f'(x) = f(x)*(1-f(x) *)
+(*odvod sigmoide za posamezen izhodni nevron, sprejme output - to kar mreža 
+dobi odvod sigmoide je f'(x) = f(x)*(1-f(x) *)
 let d_sigmoid output =
 	(output)*.( 1. -. output)  
 
-(*aktivacijska funkcija za sloj, funct je funkcija aktivacije, ki jo želimo uporabiti *)
+(*aktivacijska funkcija za sloj, funct je funkcija aktivacije, 
+ki jo želimo uporabiti *)
 let activation_layer funct layer =
 	Array.map funct layer
 	
-(*funkcija kombinacije za sloj in pripadajoče uteži, zmnoži vektor - sloj nevronov z matriko uteži,
+(*funkcija kombinacije za sloj in pripadajoče uteži, 
+zmnoži vektor (sloj nevronov) z matriko uteži,
 vrne vektor*)
 let combination_f layer weights = 
 	let w1 = Array.length weights.(0) and
@@ -24,7 +26,8 @@ let combination_f layer weights =
 		let comb = Array.make w2 0. in
 		for i = 0 to w2-1 do
 			for j = 0 to w1-1 do
-				comb.(i) <- comb.(i) +. weights.(i).(j) *. layer.(j)
+				comb.(i) <- 
+				comb.(i) +. weights.(i).(j) *. layer.(j)
 			done;
 		done;
 	comb
@@ -32,27 +35,33 @@ let combination_f layer weights =
 
 (*ustvari float matriko z naključnimi utežmi velikosti nxm,
  elementi so manjši od bound - float, spodnja meja je 0.,
- m je št nevronov v prejšnjem sloju, n je št nevronov v tem sloju, oba int
- vrne matriko mxn*)	
+ m je št nevronov v prejšnjem sloju, n je št nevronov v tem sloju, 
+ oba int vrne matriko mxn*)	
 let rand_weights n m bound =
 	Array.init n
-        (fun _ -> Array.init m (fun _ -> (Random.float 2.*.bound)-.bound))
+	(fun _ 
+		-> Array.init m (fun _ 
+			-> (Random.float 2.*.bound)-.bound))
 
-(*funkcija, ki vrne največji element v tabeli*)		
+(*vrne največji element v tabeli*)		
 let max_el arr = Array.fold_left max arr.(0) arr
 	
-(*funkcija, ki ustvari tabelo matrik naključnih uteži s pravimi velikostmi, 
-sprejme vektor, 
-ki opisuje topologijo nevronske mreže - int array, in zgornjo mejo teh uteži - float*)
+(*ustvari tabelo matrik naključnih uteži s pravimi velikostmi, 
+sprejme vektor, ki opisuje topologijo nevronske mreže - int array,
+ in zgornjo mejo teh uteži - float*)
 let create_weights_matrix network_topology bound =
 	let n = (Array.length network_topology) - 1 in
 	let weights = Array.make n [||] in
 	for i = 0 to n-1 do
-		weights.(i) <- rand_weights network_topology.(i+1) network_topology.(i) bound
+		weights.(i) <- 
+			rand_weights ( 
+				network_topology.(i+1) network_topology.(i) bound
+			)
 	done;
 	weights
 	
-(*funkcija, sprejme int array, ki opisuje topologijo mreže in iz tega ustvari float matriko, ki predstavlja nevrone v mreži.
+(*ustvari float matriko, ki predstavlja nevrone v mreži. 
+Sprejme int array, ki opisuje topologijo mreže
 Ima velikost mxn, kjer je m št slojev in n max št nevronov v sloju,
 na začetku so vse vrednosti 0.*)
 let initialize_network network_topology =	
@@ -64,7 +73,8 @@ let initialize_network network_topology =
 (*delta = dE/dA*)
 	
 (*izračuna napako za izhodni sloj, vrne vektor*)	
-(*d je željen output, y to kar mreža dobi, act_der je odvod funkcije aktivacije*)
+(*d je željen output, y to kar mreža dobi, 
+act_der je odvod funkcije aktivacije*)
 let delta_output act_der d y =
 	let d0 = Array.length d and
 	y0 = Array.length y in
@@ -94,7 +104,8 @@ let delta_hidden w h_m d_out act_der =
 	done;
 	e
 
-(*w so uteži, ki jih popravljaš, rate je stopnja učenja, delta je error - pomožne funkcije,
+(*w so uteži, ki jih popravljaš, rate je stopnja učenja, 
+delta je error - pomožne funkcije,
 input je vektor nevronov en sloj pred utežjo (eno stopnjo nazaj),
 vrne popravljene uteži *)
 let update_weights w rate delta input =
@@ -102,7 +113,8 @@ let update_weights w rate delta input =
 		in_0 = Array.length input in
 	for i = 0 to d_0 -1 do
 		for j = 0 to in_0 -1 do	
-			w.(i).(j) <- w.(i).(j) -. rate *. delta.(i) *. input.(j)
+			w.(i).(j) <- 
+				w.(i).(j) -. rate *. delta.(i) *. input.(j)
 		done;
 	done;
 	w
@@ -171,7 +183,9 @@ let denorm_z_score a mean std_dev =
 (*funkcija, ki sprejme en učni primer in ustrezno popravi uteži
 input: x - vhodni vektor
 	d - željen izhodni vektor
-	network - matrika nevronov v mreži, velikosti (št. slojev) x (max nevronov v sloju), vsi el. so 0.
+	network - matrika nevronov v mreži, 
+		velikosti (št. slojev) x (max nevronov v sloju), 
+		vsi el. so 0.
 	weights - tabela matrik uteži v mreži
 	rate - stopnja učenja
 	act_fun - funkcija aktivacije
@@ -182,12 +196,19 @@ let learning_example x d network weights rate act_fun act_der =
 		network.(0) <- x;
 	(*forward propragation*)
    	for i = 0 to n-2 do
-		network.(i+1) <- activation_layer act_fun( combination_f network.(i) weights.(i));
+		network.(i+1) <- activation_layer act_fun( 
+			combination_f network.(i) weights.(i)
+			);
 	done; 
-	let delta = ref(delta_output act_der d network.(n-1))  in
+	let delta = ref(delta_output act_der d network.(n-1)) in
 	for i = 0 to n-2 do
-		weights.(n-2-i) <- update_weights weights.(n-2-i) rate !delta network.(n-2-i);
-		delta := (delta_hidden weights.(n-2-i) network.(n-2-i) !delta act_der); 
+		weights.(n-2-i) <- update_weights (
+			weights.(n-2-i) rate !delta network.(n-2-i)
+			);
+		delta := (delta_hidden (
+			weights.(n-2-i) network.(n-2-i) !delta act_der
+			)
+		); 
 	done; 
 	weights
 		
@@ -195,7 +216,7 @@ let learning_example x d network weights rate act_fun act_der =
 (* funkcija, ki nauči mrežo (uteži) pravilnega delovanja
 vhod:
  - input_array: tabela vhodnih vektorjev
- - output_array: tabela pripadajočih željenih izhodnih vektorjev
+ - output_array: tabela pripadajočih želenih izhodnih vektorjev
  - network_topology: tabela s št. nevronov po slojih 
  - rate: stopnja učenja 
  - bound: zgornja meja, ko inicializiramo uteži
@@ -204,7 +225,8 @@ vhod:
 izhod:
 - naučene uteži
  *)	
- let train_network input_array output_array network_topology rate bound act_fun act_der = 
+ let train_network input_array output_array 
+		network_topology rate bound act_fun act_der = 
 	let network = initialize_network network_topology in 
 	let weights = create_weights_matrix network_topology bound in
 	let mean_in = mean input_array in
@@ -213,16 +235,21 @@ izhod:
 	let std_dev_out = std output_array mean_out in
 	let n = Array.length input_array in 
 	for i = 0 to n-1 do
-		let norm_input_array = norm_z_score input_array.(i) mean_in std_dev_in in
-		let norm_output_array = norm_z_score output_array.(i) mean_out std_dev_out in
-		let pom = ref (learning_example  norm_input_array norm_output_array network weights rate act_fun act_der) in
+		let norm_input_array = norm_z_score (
+			input_array.(i) mean_in std_dev_in) in
+		let norm_output_array = norm_z_score (
+			output_array.(i) mean_out std_dev_out) in
+		let pom = ref (learning_example  
+			norm_input_array norm_output_array 
+			network weights rate act_fun act_der) in
 		for i = 0 to (Array.length weights)-1 do
 			weights.(i) <- !pom.(i);
 		done;
 	done;
 	weights 
 	
-(* funkcija, ki nauči mrežo (uteži) pravilnega delovanja, sprejme matriko z utežmi
+(* funkcija, ki nauči mrežo (uteži) pravilnega delovanja, 
+sprejme matriko z utežmi
 vhod:
  - input_array: tabela vhodnih vektorjev
  - output_array: tabela pripadajočih željenih izhodnih vektorjev
@@ -234,18 +261,22 @@ vhod:
 izhod:
 - naučene uteži
  *)	
-let train_with_input_weights input_array output_array network_topology rate w act_fun act_der =
+let train_with_input_weights input_array output_array 
+	network_topology rate w act_fun act_der =
 	let network = initialize_network network_topology in
-	(* let w = Array.copy weights in *)
 	let mean_in = mean input_array in
 	let std_dev_in = std input_array mean_in in	
 	let mean_out = mean output_array in
 	let std_dev_out = std output_array mean_out in
 	let n = Array.length input_array in 
 	for i = 0 to n-1 do
-		let norm_input_array = norm_z_score input_array.(i) mean_in std_dev_in in
-		let norm_output_array = norm_z_score output_array.(i) mean_out std_dev_out in
-		let pom = ref (learning_example  norm_input_array norm_output_array network w rate act_fun act_der) in
+		let norm_input_array = norm_z_score (
+			input_array.(i) mean_in std_dev_in) in
+		let norm_output_array = norm_z_score (
+			output_array.(i) mean_out std_dev_out) in
+		let pom = ref (learning_example  
+			norm_input_array norm_output_array network w 
+			rate act_fun act_der) in
 		for i = 0 to (Array.length w)-1 do
 			w.(i) <- !pom.(i);
 		done;
@@ -265,7 +296,9 @@ let predict input network weights act_fun =
 	let n = Array.length network in
 		network.(0) <- input;
    	for i = 0 to n-2 do
-		network.(i+1) <- activation_layer act_fun ( combination_f network.(i) weights.(i))
+		network.(i+1) <- activation_layer act_fun ( 
+		combination_f network.(i) weights.(i)
+		)
 	done;
 	network.(n-1)
 	
@@ -283,16 +316,21 @@ vhod:
 izhod:
 - povprečna napaka med dobljeno in želeno vrednostjo
  *)		
-let evaluate test_input test_output weights network_topology act_fun mean_in std_in mean_out std_out =	
+let evaluate test_input test_output weights network_topology 
+	act_fun mean_in std_in mean_out std_out =	
 	let network = initialize_network network_topology in
 	let n = Array.length test_input in
 	let o1 = Array.length test_output.(0) in
 	let error = Array.make_matrix n o1 0. in
 	for i=0 to n-1 do
-		let prediction = predict (norm_z_score test_input.(i) mean_in std_in) network weights act_fun in
-		let norm_pred = denorm_z_score prediction mean_out std_out in 
+		let prediction = predict (
+			norm_z_score (test_input.(i) mean_in std_in)
+			network weights act_fun ) in
+		let norm_pred = denorm_z_score (
+			prediction mean_out std_out ) in 
 		for j=0 to o1-1 do		
-			let e_j = abs_float (norm_pred.(j) -. test_output.(i).(j)) in 
+			let e_j = abs_float (
+				norm_pred.(j) -. test_output.(i).(j)) in 
 			error.(i).(j) <- e_j;
 		done;
 	done;
@@ -300,7 +338,8 @@ let evaluate test_input test_output weights network_topology act_fun mean_in std
 	e_m
 	
 	
-(*n-krat požene evaluate na n različnih mrežah, n krat nauči in pogleda napako*)
+(*n-krat požene evaluate na n različnih mrežah, 
+n krat nauči in pogleda napako*)
 (* funkcija, ki napove vrednost pri testnem primeru
 vhod:
 - train_input: tabela vhodnih učnih vektorjev
@@ -315,7 +354,8 @@ vhod:
 izhod:
 - povprečna napaka med dobljeno in želeno vrednostjo
  *)	
-let analysis_error train_input train_output test_input test_output network_topology act_fun act_der rate n =
+let analysis_error train_input train_output test_input 
+	test_output network_topology act_fun act_der rate n =
 	let o1 = Array.length test_output.(0) in
 	let e = Array.make_matrix n o1 0. in
 	let mean_in = mean train_input in
@@ -323,17 +363,18 @@ let analysis_error train_input train_output test_input test_output network_topol
 	let std_in = std train_input mean_in in
 	let std_out = std train_output mean_out in
 	for i=0 to (n-1) do
-		(* let unlearned_pred = predict test_input network_topology trained_w act_fun in  *)
-		let trained_w = train_network train_input train_output network_topology rate 1.0 act_fun act_der in
-		(* let prediction = predict test_input.(i) network_topology trained_w act_fun in  *)
-		let error = evaluate test_input test_output trained_w network_topology act_fun mean_in std_in mean_out std_out in
-		(* error|> (Array.iter(print_float)); *)
+		let trained_w = train_network train_input train_output 
+			network_topology rate 1.0 act_fun act_der in
+		let error = evaluate test_input test_output trained_w 
+			network_topology act_fun 
+			mean_in std_in mean_out std_out in
 		e.(i) <- error;
 	done;
 	let e_m = mean e in
 	e_m
 	
-let analysis_unlearned train_input train_output test_input test_output network_topology act_fun act_der rate n =
+let analysis_unlearned train_input train_output test_input 
+	test_output network_topology act_fun act_der rate n =
 	let o1 = Array.length test_output.(0) in
 	let e = Array.make_matrix n o1 0. in
 	let mean_in = mean train_input in
@@ -341,17 +382,17 @@ let analysis_unlearned train_input train_output test_input test_output network_t
 	let std_in = std train_input mean_in in
 	let std_out = std train_output mean_out in
 	for i=0 to (n-1) do
-		(* let unlearned_pred = predict test_input network_topology trained_w act_fun in  *)
 		let w = create_weights_matrix network_topology 1.0 in
-		(* let prediction = predict test_input.(i) network_topology trained_w act_fun in  *)
-		let error = evaluate test_input test_output w network_topology act_fun mean_in std_in mean_out std_out in
-		(* error|> (Array.iter(print_float)); *)
+		let error = evaluate test_input test_output w 
+			network_topology act_fun 
+			mean_in std_in mean_out std_out in
 		e.(i) <- error;
 	done;
 	let e_m = mean e in
 	e_m
 
-let learned_vs_unlearned train_input train_output test_input test_output network_topology act_fun act_der rate n =
+let learned_vs_unlearned train_input train_output test_input 
+	test_output network_topology act_fun act_der rate n =
 	let o1 = Array.length test_output.(0) in
 	let count = Array.make o1 0 in
 	let mean_in = mean train_input in
@@ -360,9 +401,15 @@ let learned_vs_unlearned train_input train_output test_input test_output network
 	let std_out = std train_output mean_out in
 	for i=0 to (n-1) do
 		let w = create_weights_matrix network_topology 1.0 in
-		let error_unlearned = evaluate test_input test_output w network_topology act_fun mean_in std_in mean_out std_out in
-		let trained_w = train_with_input_weights train_input train_output network_topology rate w act_fun act_der in
-		let error_learned = evaluate test_input test_output trained_w network_topology act_fun mean_in std_in mean_out std_out in
+		let error_unlearned = evaluate test_input test_output
+			w network_topology act_fun 
+			mean_in std_in mean_out std_out in
+		let trained_w = train_with_input_weights 
+			train_input train_output network_topology 
+			rate w act_fun act_der in
+		let error_learned = evaluate test_input test_output 
+			trained_w network_topology act_fun 
+			mean_in std_in mean_out std_out in
 		for j=0 to (o1-1) do
 			if (error_unlearned.(j) > error_learned.(j)) 
 			then count.(j) <- count.(j) + 1
@@ -371,34 +418,39 @@ let learned_vs_unlearned train_input train_output test_input test_output network
 	done;
 	count
 	
-let bias test_input test_output weights network_topology act_fun mean_in std_in mean_out std_out =
+let bias test_input test_output weights network_topology 
+	act_fun mean_in std_in mean_out std_out =
 	let network = initialize_network network_topology in
 	let n = Array.length test_input in
 	let o1 = Array.length test_output.(0) in
 	let out = Array.make_matrix n o1 0. in
 	for i=0 to n-1 do
-		let prediction = predict (norm_z_score test_input.(i) mean_in std_in) network weights act_fun in
-		let norm_pred = denorm_z_score prediction mean_out std_out in
+		let prediction = predict (
+			norm_z_score test_input.(i) mean_in std_in) 
+			network weights act_fun in
+		let norm_pred = denorm_z_score prediction 
+			mean_out std_out in
 		out.(i) <- norm_pred;
 	done;
 	let o_m = mean out in
 	let bias = Array.make_matrix n o1 0. in
 	for i=0 to n-1 do
 		for j=0 to (o1-1) do	
-			(* test_output.(i).(j)|> ((print_float)); *)
-			(* let () = print_newline () in *)
 			bias.(i).(j) <- test_output.(i).(j) -. o_m.(j);
 		done;
 	done;
 	bias
 
-let variance test_input weights network_topology act_fun mean_in std_in mean_out std_out  = 	
+let variance test_input weights network_topology act_fun 
+	mean_in std_in mean_out std_out  = 	
 	let network = initialize_network network_topology in
 	let n = Array.length test_input in
 	let o1 = network_topology.(Array.length network_topology - 1) in
 	let out = Array.make_matrix n o1 0. in
 	for i=0 to n-1 do
-		let prediction = predict (norm_z_score test_input.(i) mean_in std_in) network weights act_fun in
+		let prediction = predict 
+			(norm_z_score test_input.(i) mean_in std_in) 
+			network weights act_fun in
 		let norm_pred = denorm_z_score prediction mean_out std_out in
 		out.(i) <- norm_pred;
 	done;
@@ -406,13 +458,42 @@ let variance test_input weights network_topology act_fun mean_in std_in mean_out
 	let v = Array.make_matrix n o1 0. in
 	for i=0 to n-1 do
 		for j=0 to (o1-1) do	
-			(* out.(i).(j)|> ((print_float)); *)
-			(* let () = print_newline () in *)
-			(* o_m.(j)|> ((print_float)); *)
-			(* let () = print_newline () in *)
 			v.(i).(j) <- (out.(i).(j) -. o_m.(j))**2.;
 		done;
 	done;
 	let var = mean v in
 	var
 	
+(*max_rate in min_rate so potence 10*)	
+let rate_analysis r_vect train_input train_output test_input 
+	test_output network_topology act_fun act_der =
+	let o1 = Array.length test_output.(0) in 
+	let mean_in = mean train_input in
+	let mean_out = mean train_output in
+	let std_in = std train_input mean_in in
+	let std_out = std train_output mean_out in
+	let n = Array.length r_vect in
+	let r = Array.make_matrix n o1 0. in
+	for r_i=0 to n-1 do
+		let error = analysis_error train_input train_output 
+			test_input test_output network_topology 
+			act_fun act_der r_vect.(r_i) 50 in
+		r.(r_i) <- error;
+	done;
+	r
+	
+let topology_analysis min_hidden n train_input train_output 
+	test_input test_output act_fun act_der rate = 
+	let o1 = Array.length test_output.(0) in 
+	let mean_in = mean train_input in
+	let mean_out = mean train_output in
+	let std_in = std train_input mean_in in
+	let std_out = std train_output mean_out in
+	let t = Array.make_matrix n o1 0. in
+	for t_i=0 to n-1 do
+		let error = analysis_error train_input train_output 
+			test_input test_output [|11; min_hidden + t_i;3|]
+			act_fun act_der rate 50 in
+		t.(t_i) <- error;
+	done;
+	t

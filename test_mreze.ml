@@ -42,7 +42,9 @@ let denorm_pred_learned = denorm_z_score prediction_learned mean_o std_o
 
 (* let prediction1 = predict test_examples.(0) network top1 trained_weights sigmoid *)
 
-let it_should_be = test_out.(10)
+let it_should_be = test_out.(1)
+
+let no1 = input.(0)
 
 (* let error0 = denorm_pred.(0) -. it_should_be.(0) *)
 (* let error1 = denorm_pred.(1) -. it_should_be.(1) *)
@@ -60,11 +62,11 @@ let error_mean_trained_input = evaluate test_examples test_out trained_w_input t
 
 let analysis1 = analysis_error input out test_examples test_out topology sigmoid d_sigmoid rate 50 
 (* let analysis2 = analysis_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50  *)
-let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50 
+(* let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50  *)
 
-(* let bias_trained = bias test_examples test_out trained_weights topology sigmoid mean_i std_i mean_o std_o *)
-(* let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o *)
+(* (* let bias_trained = bias test_examples test_out trained_weights topology sigmoid mean_i std_i mean_o std_o *) *)
+(* (* let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o *) *)
 
-(* let rate_ana = rate_analysis r_ana input out test_examples test_out topology sigmoid d_sigmoid *)
+(* (* let rate_ana = rate_analysis r_ana input out test_examples test_out topology sigmoid d_sigmoid *) *)
 
-let top_ana = topology_analysis 51 100 input out test_examples test_out sigmoid d_sigmoid 0.5
+(* let top_ana = topology_analysis 51 100 input out test_examples test_out sigmoid d_sigmoid 0.5 *)

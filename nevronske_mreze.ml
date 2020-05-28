@@ -54,9 +54,8 @@ let create_weights_matrix network_topology bound =
 	let weights = Array.make n [||] in
 	for i = 0 to n-1 do
 		weights.(i) <- 
-			rand_weights ( 
+			rand_weights 
 				network_topology.(i+1) network_topology.(i) bound
-			)
 	done;
 	weights
 	
@@ -147,7 +146,7 @@ let std data mean =
 	let s = Array.make n_a 0. in
 	for i = 0 to n-1 do
 		for j = 0 to n_a - 1 do
-			s.(j) <- s.(j) +. ((data.(i).(j) -. mean.(j))**2.)
+			s.(j) <- s.(j) +. (data.(i).(j) -. mean.(j))**2.;
 		done;
 	done;
 	for j = 0 to n_a - 1 do
@@ -202,12 +201,11 @@ let learning_example x d network weights rate act_fun act_der =
 	done; 
 	let delta = ref(delta_output act_der d network.(n-1)) in
 	for i = 0 to n-2 do
-		weights.(n-2-i) <- update_weights (
+		weights.(n-2-i) <- update_weights 
 			weights.(n-2-i) rate !delta network.(n-2-i)
-			);
-		delta := (delta_hidden (
+			;
+		delta := (delta_hidden 
 			weights.(n-2-i) network.(n-2-i) !delta act_der
-			)
 		); 
 	done; 
 	weights
@@ -235,10 +233,10 @@ izhod:
 	let std_dev_out = std output_array mean_out in
 	let n = Array.length input_array in 
 	for i = 0 to n-1 do
-		let norm_input_array = norm_z_score (
-			input_array.(i) mean_in std_dev_in) in
-		let norm_output_array = norm_z_score (
-			output_array.(i) mean_out std_dev_out) in
+		let norm_input_array = norm_z_score 
+			input_array.(i) mean_in std_dev_in in
+		let norm_output_array = norm_z_score 
+			output_array.(i) mean_out std_dev_out in
 		let pom = ref (learning_example  
 			norm_input_array norm_output_array 
 			network weights rate act_fun act_der) in
@@ -270,10 +268,10 @@ let train_with_input_weights input_array output_array
 	let std_dev_out = std output_array mean_out in
 	let n = Array.length input_array in 
 	for i = 0 to n-1 do
-		let norm_input_array = norm_z_score (
-			input_array.(i) mean_in std_dev_in) in
-		let norm_output_array = norm_z_score (
-			output_array.(i) mean_out std_dev_out) in
+		let norm_input_array = norm_z_score 
+			input_array.(i) mean_in std_dev_in in
+		let norm_output_array = norm_z_score 
+			output_array.(i) mean_out std_dev_out in
 		let pom = ref (learning_example  
 			norm_input_array norm_output_array network w 
 			rate act_fun act_der) in
@@ -324,10 +322,10 @@ let evaluate test_input test_output weights network_topology
 	let error = Array.make_matrix n o1 0. in
 	for i=0 to n-1 do
 		let prediction = predict (
-			norm_z_score (test_input.(i) mean_in std_in)
-			network weights act_fun ) in
-		let norm_pred = denorm_z_score (
-			prediction mean_out std_out ) in 
+			norm_z_score test_input.(i) mean_in std_in)
+			network weights act_fun  in
+		let norm_pred = denorm_z_score 
+			prediction mean_out std_out  in 
 		for j=0 to o1-1 do		
 			let e_j = abs_float (
 				norm_pred.(j) -. test_output.(i).(j)) in 
@@ -451,7 +449,8 @@ let variance test_input weights network_topology act_fun
 		let prediction = predict 
 			(norm_z_score test_input.(i) mean_in std_in) 
 			network weights act_fun in
-		let norm_pred = denorm_z_score prediction mean_out std_out in
+		let norm_pred = denorm_z_score 
+		prediction mean_out std_out in
 		out.(i) <- norm_pred;
 	done;
 	let o_m = mean out in
@@ -485,6 +484,7 @@ let rate_analysis r_vect train_input train_output test_input
 let topology_analysis min_hidden n train_input train_output 
 	test_input test_output act_fun act_der rate = 
 	let o1 = Array.length test_output.(0) in 
+	let i1 = Array.length test_input.(0) in 
 	let mean_in = mean train_input in
 	let mean_out = mean train_output in
 	let std_in = std train_input mean_in in
@@ -492,7 +492,7 @@ let topology_analysis min_hidden n train_input train_output
 	let t = Array.make_matrix n o1 0. in
 	for t_i=0 to n-1 do
 		let error = analysis_error train_input train_output 
-			test_input test_output [|11; min_hidden + t_i;3|]
+			test_input test_output [|i1; min_hidden + t_i;o1|]
 			act_fun act_der rate 50 in
 		t.(t_i) <- error;
 	done;

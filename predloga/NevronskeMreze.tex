@@ -27,16 +27,17 @@
 
 %  V povzetku na kratko opišite vsebinske rezultate dela. Sem ne sodi razlaga organizacije dela --
 %  v katerem poglavju/razdelku je kaj, pač pa le opis vsebine.
-\povzetek{}
+\povzetek{Diplomsko delo se poglobi v usmerjene nevronske mreže. Le te temeljijo na posnemanju možganskih funkcij, uporabljajo pa se za napovedovanje in klasifikacijo. Sestavljajo jih nevroni organizirani v sloje in med sabo povezani s sinapsami. S pomočjo algoritma vzvratnega razširjanja napake in učnih primerov mrežo naučimo, da se zna odzvati na neznane situacije. Algoritem temelji na spreminjanju uteži na sinapsah, učenje poteka dokler ni napaka med želeno in izračunano vrednostjo dovolj majhna. Poleg nevronskih mrež se delo osredotoči tudi na funkcijsko programiranje s poudarkom na programskem jeziku OCaml. Na koncu je primer nevronske mreže tudi implementiran, na konkretnem primeru je analizirano delovanje mreže.}
 
 %  Prevod slovenskega povzetka v angleščino.
-\abstract{}
+\abstract{The paper focuses on feed-forward neural networks. Mimicking brain functions, neural networks are used for prediction and classification. Neural networks are composed of neurons organized in layers and connected by synapses. With the backpropagation algorithm and learning examples the network is able to learn how to respond to unknown situations. Idea behind the backpropagation is to change weights on the synapses until error between computed and desired values in small enough. In addition, paper presents ideas behind functional programming and programming language OCaml. Implementation of neural network and it's analysis is presented in the end of the paper.}
 
 % navedite vsaj eno klasifikacijsko oznako --
 % dostopne so na www.ams.org/mathscinet/msc/msc2010.html
-\klasifikacija{}
-\kljucnebesede{} % navedite nekaj ključnih pojmov, ki nastopajo v delu
-\keywords{} % angleški prevod ključnih besed
+\klasifikacija{68T05, 68N18}
+\kljucnebesede{usmerjene nevronske mreže, vzvratno razširjanje napake, perceptron, umetna inteligenca, strojno učenje, funkcijski programski jezik OCaml} % navedite nekaj ključnih pojmov, ki nastopajo v delu
+\keywords{feed-forward neural network, backpropagation, perceptron, artificial intelligence, machine learning, functional programming language OCaml}
+ % angleški prevod ključnih besed
 
 \zapisiMetaPodatke  % poskrbi za metapodatke in veljaven PDF/A-1b standard
 
@@ -78,18 +79,23 @@
 %
 \section{Uvod}
 %
-Človeški možgani so kompleksen organ predvsem zaradi neštetih funkcij, ki jih opravljajo. In zgolj vprašanje časa je bilo, kdaj bodo znanstveniki skoraj neskončne zmožnosti možganov prenesli v računalništvo. Ko so poskušali idejo uresničiti, so si predvsem želeli strukture, ki se bo -- podobno kot možgani -- sposobna učiti, odzivati na sprememe in prepoznavati neznane situacije. Tako je 1949 Donald Hebb v svojem delu prvič predstavil idejo o umetnih nevronskih mrežah, kjer se je zgledoval predvsem po možganih. Dvoslojni perceptorn se je rodil nekoliko kasneje, leta 1962 je ta pojem prvi omenil Rosenblatt. Z razvojem strojne opreme se je zanimanje za nevronske mreže zopet povečalo v osemdesetih letih prejšnjega stoletja. Leta 1986 je več raziskovalcev neodvisno drug od drugega vpeljalo teorijo o večslojnih nevronskih mrežah in vzvratnem razširjanju napake. Kljub širokemu spektru uporabe, ki jih nudijo nevronske mreže, je interes zanje kasneje nekoliko upadel. V zadnjih letih pa so nevronske mreže zopet vroča tema, predvsem zaradi njihove zmožnosti prepoznavanja slik. Do danes so umetne nevronske mreže močno napredovale, namesto običajnih mrež se vedno bolj uporabljajo globoke nevronske mreže, ki v nekaterih lastnostih celo prekašajo možgane. Kljub vsemu pa so možgani sposobni masrcičesa, česar računalniki ne bodo nikoli.
+Človeški možgani so kompleksen organ predvsem zaradi neštetih funkcij, ki jih opravljajo. In zgolj vprašanje časa je bilo, kdaj bodo znanstveniki skoraj neskončne zmožnosti možganov prenesli v računalništvo. Ko so poskušali idejo uresničiti, so si predvsem želeli strukture, ki se bo -- podobno kot možgani -- sposobna učiti, odzivati na sprememe in prepoznavati neznane situacije. Tako je 1949 Donald Hebb v svojem delu prvič predstavil idejo o umetnih nevronskih mrežah, kjer se je zgledoval predvsem po možganih. 
 
-Diplomska naloga se poglobi v umetne nevronske mreže z vzvratnim razširjanjem napake. Primer take mreže sem tudi implementirala v funkcijskem programskem jeziku OCaml. 
+Dvoslojni perceptorn, kot prva nevrosnka mreža zmožna učenja, se je rodil nekoliko kasneje, leta 1962 je ta pojem prvi omenil Rosenblatt. Z razvojem strojne opreme se je zanimanje za nevronske mreže zopet povečalo v osemdesetih letih prejšnjega stoletja. Leta 1986 je več raziskovalcev neodvisno drug od drugega vpeljalo teorijo o večslojnih nevronskih mrežah in vzvratnem razširjanju napake. Kljub širokemu spektru uporabe, ki jih nudijo nevronske mreže, je interes zanje kasneje nekoliko upadel. V zadnjih letih pa so nevronske mreže zopet vroča tema, predvsem zaradi njihove zmožnosti prepoznavanja slik. Do danes so umetne nevronske mreže močno napredovale, namesto običajnih mrež se vedno bolj uporabljajo globoke nevronske mreže, ki so v nekaterih svojih zmožnostih primerljive z zmožnostmi možganov. Kljub vsemu pa so možgani sposobni masrcičesa, česar računalniki trenutno ne zmorejo.
+
+Diplomska naloga se poglobi v usmerjene nevronske mreže in njihovo učenje z vzvratnim razširjanjem napake. Primer take mreže sem tudi implementirala v funkcijskem programskem jeziku OCaml. 
 %
 \section{Umetne nevronske mreže}
 %
 %
 \subsection{Biološko ozadje}
-Kot namiguje že samo ime, se umetne nevronske mreže v marsičem zgledujejo po človeških možganih. Osnovni gradniki možganov so nevroni, ki so med seboj povezani s sinapsami. Prav te goste povezave so ključne za delovanje živčevja. Skozi naše življenje se sinapse spreminjajo po jakosti in številu, ko se učimo se ustvarjajo nove povezave med nevroni, že obstoječe pa postajajo močnejše. Nevron se aktivira le,  ko po sinapsi do njega pride signal s točno določeno frekvenco, ta impulz nato nevron posreduje sosednjim nevronom. Človeške možgane sestavlja $10^{10}$ nevronov, vsak  ima približno $10^4$ sinaps. Umetne nevronske mreže načeloma sestavlja veliko manj gradnikov, posledično so pri izvajanju operacij veliko hitrejše od možganov. Kot bomo videli v nadaljevanju, je osnovna ideja umetnih nevronskih mrež zelo podobna živčevju v možganih. Lahko bi rekli, da so umetne nevronske mreže zgolj abstraktna poenosatvitev delovanja možganov. 
+Kot namiguje že samo ime, se umetne nevronske mreže v marsičem zgledujejo po človeških možganih. Osnovni gradniki možganov so nevroni, ki so med seboj povezani s sinapsami. Prav te goste povezave so ključne za delovanje živčevja. Skozi naše življenje se sinapse spreminjajo po jakosti in številu, ko se učimo se ustvarjajo nove povezave med nevroni, že obstoječe pa postajajo močnejše. Nevron se aktivira le,  ko po sinapsi do njega pride signal s točno določeno frekvenco, ta impulz nato nevron posreduje sosednjim nevronom. Človeške možgane sestavlja $10^{10}$ nevronov, vsak  ima približno $10^4$ sinaps. Umetne nevronske mreže načeloma sestavlja veliko manj gradnikov, posledično so pri izvajanju preprostih operacij veliko hitrejše od možganov. Kot bomo videli v nadaljevanju, je osnovna ideja umetnih nevronskih mrež zelo podobna živčevju v možganih. Lahko bi rekli, da so umetne nevronske mreže zgolj abstraktna poenosatvitev delovanja možganov. 
 %
 \subsection{Zgradba nevronskih mrež}
-Nevronske mreže so sestavljene iz nevronov, ki matematično gledano niso nič drugega kot funkcije. Nevroni so med seboj povezani, vsaka povezava ima svojo težo oziroma utež. Nevrone nadalje razdelimo v sloje. Pomembno je poudariti, da nevroni v istem sloju med seboj niso povezani, vsak nevron je povezan z vsemi nevroni v naslednjem (oziroma prejšnjem sloju). Nevronska mreža lahko vsebuje le vhodni in izhodni sloj -- takrat govorimo o dvoslojni nevronski mreži. Če se med tema slojema skriva še kakšen skriti sloj, potem mreža postane večslojna. Število nevronov v posameznem sloju kot tudi število skritih slojev nevronske mreže je odvisno od problema, ki ga nevronska mreža rešuje.
+Nevronske mreže so sestavljene iz nevronov, ki matematično gledano niso nič drugega kot funkcije. Nevroni so med seboj povezani s sinapsami, vsaka sinapsa ima svojo težo oziroma utež.
+ Nevroni so organizirani v slojih. Nevroni v istem sloju med seboj niso povezani, vsak nevron je povezan z vsemi nevroni v naslednjem (oziroma prejšnjem sloju). V strojnem učenju se večinoma uporabljajo usmerjene nevrosnke mreže, kjer izračun vrednosti poteka od vhodnega sloja proti izhodnemu. Usmerjene nevronske mreže ne vsebujejo povratnih povezav, prav tako sinapse ne smejo tvoriti cikla.
+ 
+ Nevronska mreža lahko vsebuje le vhodni in izhodni sloj -- takrat govorimo o dvoslojni nevronski mreži. Če se med tema slojema skriva še kakšen skriti sloj, potem mreža postane večslojna. Število nevronov v posameznem sloju kot tudi število skritih slojev nevronske mreže je odvisno od problema, ki ga nevronska mreža rešuje.
 %
 \begin{figure}
 \centering
@@ -107,10 +113,10 @@ Nevronske mreže so sestavljene iz nevronov, ki matematično gledano niso nič d
 \caption{Perceptron z dvema skritima slojema nevronov}
 \end{figure}
 %
-Pri mrežah, ki jih bom obravnavala v diplomski nalogi, so vse povezave usmerjene, čeprav je pomembno omeniti, da obstajajo tudi mreže z dvosmernimi povezavami. Usmerjeni nevronski mreži rečemo perceptron, glede na število slojev ločimo dvoslojni in večslojni perceptron.  
+Pri mrežah, ki jih bom obravnavala v diplomski nalogi, so vse povezave usmerjene, čeprav je smiselno omeniti, da obstajajo tudi mreže z dvosmernimi povezavami. Usmerjeni nevronski mreži rečemo perceptron, glede na število slojev ločimo dvoslojni in večslojni perceptron.  
 %
 \subsection{Delovanje perceptrona}
-Vzemimo dvoslojni perceptron z $m$ nevroni v vhodnem sloju, njihova stanja  označimo z $X_1, X_2, \ldots, X_m$ in $n$ nevroni v izhodnem sloju, označimo jih $Y_1, Y_2, \ldots, Y_{n}$. Običajno sloj nevronov zapišemo v obliki vektorja:
+Vzemimo dvoslojni perceptron z $m$ nevroni v vhodnem sloju, njihova stanja in izhode\footnote{V vhodnem sloju so običajno izhodi nevronov enaki njihovim stanjem.} označimo z $X_1, X_2, \ldots, X_m$ in $n$ nevroni v izhodnem sloju, označimo jih $Y_1, Y_2, \ldots, Y_{n}$. Običajno sloj nevronov zapišemo v obliki vektorja:
 %
 \begin{equation*}
 X = (X_1, X_2, \dotso, X_m)^\intercal  \quad \text{in} \quad  Y = (Y_1, Y_2, \dotso, Y_n)^\intercal \text{.}
@@ -130,14 +136,14 @@ W_{n1} & W_{n2} & \cdots & W_{nm}
 kjer element matrike $W_{ij}$ predstavlja utež med $j$-tim nevronom v vhodnem sloju in $i$-tim nevronom v izhodnem sloju.
 %
 \subsubsection{Funkcija kombinacije:}
-Stanje $i$-tega nevrona po uporabljeni funkciji aktivacije je sledeče:
+Uporabljamo jo za izračun stanja $i$-tega nevrona sledeče:
 %
 \begin{equation*}
 A_i= \sum_{j}W_{ij}X_j + C_i \text,
 \end{equation*}
 %
-kjer je  $C_i$ pa konstanta aktivacije za $i$-ti nevron (njen pomen je pojasnjen v poglavju \ref{bias}). 
-Za cel sloj izhodnih nevronov pa lahko funkcijo aktivacije zapišemo z linearno preslikavo:
+kjer je  $C_i$ pa konstanta aktivacije za $i$-ti nevron (njen pomen je pojasnjen v poglavju~\ref{bias}). 
+Za cel sloj izhodnih nevronov pa lahko funkcijo kombinacije zapišemo z linearno preslikavo:
 %
 \begin{equation*}
 A = WX \text,
@@ -155,7 +161,7 @@ W_{n1} & W_{n2} & \cdots & W_{nm} & C_n
 \end{equation*}
 %
 \subsubsection{Funkcija aktivacije:}
-Cilj funkcije aktivacije je normalizirati vrednost, ki jo dobimo s funkcijo kombinacije. Glede na namen uporabe nevronske meže lahko uporabimo različne funkcije aktivacije. Najpogosteje se uporabljaljata stopničasta pragovna funkcija ali pa sigmoidna funkcija. 
+Cilj funkcije aktivacije je normalizirati vrednost, dobljeno s funkcijo kombinacije. Glede na namen uporabe nevronske meže lahko uporabimo različne funkcije aktivacije. Najpogosteje se uporabljaljata stopničasta pragovna funkcija ali pa sigmoidna funkcija. 
 
 \emph{Stopničasta pragovna funkcija} nevron aktivira le, če je vrednost dobljena z funkcijo aktivacije nad oziroma pod določeno mejo. Uporaba te funkcije je dokaj omejena. Ker vhodnim podatkom pripiše le dve različni vrednosti, jo lahko uporabimo le pri klasifikaciji v dve kategoriji oziroma za reševanje linearnih problemov. Prav tako jo lahko uporabimo samo pri dvoslojnih perceptronih. Kot bomo videli v nadaljevanju, za večslojne perceptrone ni primerna, saj njen odvod ni gladek, kjer je definiran, pa je enak $0$, kar pa pomeni, da za učenje ne moremo uporabiti posplošenega pravila delta. Primer stopničaste pragovne funkcije z izhodnima vrednostima $0$ in $1$ je:
 %
@@ -180,7 +186,7 @@ f(x)=
 f(x) = \frac{1}{1+e^{-x}} \quad in \quad h(x) = \tanh(x) = \frac{e^x-e^{-x}}{e^x+e^{-x}} \text.
 \end{equation}
 %
-Kot je razvidno z grafov (slika \ref{fig:sigmoid}) je na intervalu $(-2,2)$ naklon obeh funkcij velik, zato da na omenjenem intervalu mreža pri napovedovanju jasne rezultate in učenje je hitro. Po drugi strani pa je zunaj tega intervala odvod majhen, tako je učenje mreže in posledično napovedovanje zelo počasno in nenatančno.
+Kot je razvidno z grafov (slika~\ref{fig:sigmoid}) je na intervalu $(-2,2)$ naklon obeh funkcij velik, zato da na omenjenem intervalu mreža pri napovedovanju jasne rezultate in učenje je hitro. Po drugi strani pa je zunaj tega intervala odvod majhen, tako je učenje mreže in posledično napovedovanje zelo počasno in nenatančno.
 
 Kot bomo videli v nadaljevanju, pri učenju mreže s posplošenim pravilom delta potrebujemo tudi odvod funkcije aktivacije, ki ga pri zgornjih dveh funkcijah lahko izrazimo z $f(x)$ oziroma $h(x)$ na naslednji način:
 %
@@ -210,7 +216,7 @@ h'(x) = \left(\frac{\sinh(x)}{\cosh(x)}\right)' = \frac{\cosh^2(x)- \sinh^2(x)}{
 Katero funkcijo aktivacije bomo izbarli je odvisno od problema, ki ga želimo z mrežo obravnavati.
 %
 \subsubsection{Konstanta aktivacije} \label{bias}
-Sloju nevronov pogosto dodamo še en nevron - konstanto aktivacije. To je nevron z vrednostjo $1$, njegova naloga pa je, da funkcijo aktivacije primerno premakne levo oziroma desno po grafu. Brez dodatnega nevrona bi mreža pri vhodnem podatku $X=0$ vedno vračala vrednost $0$, posledično bi bila aproksimacija dane funkcije slaba in rezultati netočni. 
+Sloju nevronov pogosto dodamo še en nevron - konstanto aktivacije. To je nevron z izhodom $1$, ki posledično postane vhod za vse nevrone v naslednjem sloju. Naloga konstante aktivacije je, da funkcijo aktivacije primerno premakne levo oziroma desno po grafu. Brez dodatnega nevrona bi mreža pri vhodnem podatku $X=0$ vedno vračala vrednost $0$, posledično bi bila aproksimacija dane funkcije slaba in rezultati netočni. 
 
 Pomen konstante aktivacije najlažje predstavimo s pomočjo linearne funkcije. Z enačbo oblike $y = kx$ lahko zapišemo le premice, ki prečkajo koordinatno izhodišče. Če pa fuknkciji dodamo še začetno vrednost, ki ustreza pomenu konstante aktivacije, potem lahko z enačbo $y= kx + n$ zapišemo poljubno premico. Z uporabo konstante aktivacije postane mreža bolj fleksibilna, problem bolje aproksimira in vrača bolj točne rezultate. 
 %
@@ -277,7 +283,7 @@ kjer velja, da funkcijo aktivacije uporabimo na vsaki komponenti vektorja $WX$.
 % left hand side brace
 \draw[decorate,decoration={brace,mirror}] (x1.north west) -- node[left=10pt] {Vhodi} (x3.south west);
 \end{tikzpicture}
-\caption{Funkcija nevrona}
+\caption{Funkcija nevrona (vhodi $X_1, X_2, X_3$ predstavljajo izhode nevronov iz prejšnjega sloja).}
 \label{Funkcija nevrona}
 \end{figure}
 %
@@ -328,7 +334,7 @@ E(l) &= (d(l)-Y(l))^2 \\
 %
 kjer je $d(l)$ želen izhod in $Y(l)= WX(l)$ z mrežo izračunana vrednost pri $l$-tem učnem primeru, vhodnem vektorju $X(l)$ in matriki uteži $W$.
 
-Pravilo delta temelji na gradientnem iskanju, vektor uteži popravljamo v negativni smeri odvoda napake po utežeh. Le ta se glasi:
+Pravilo delta temelji na gradientnem iskanju -- vektor uteži popravljamo v negativni smeri odvoda napake po utežeh. Zaporedje takih popravkov nas namreč pripelje do lokalnega minimuma napake. Odvod napake po utežeh zapišemo sledeče:
 %
 \begin{equation*}
 \frac{dE(l)}{dW}= -2(d(l)-WX(l))X(l)
@@ -346,8 +352,11 @@ W^{N} &= W - \eta\frac{dE(l)}{dW} \\
 %
 V zgornji enačbi $\eta$ predstavlja hitrost učenja in vpliva na to kako hitro bodo uteži konvergirale k optimalnim. 
 %
-\subsubsection{Gradientno iskanje} 
-Za pravilom delta stoji gradientno iskanje, ki ni nič drugega kot iskanje lokalnega minimuma. Iskanje poteka tako, da začnemo na naključni točki na grafu (zato utežem na začetku pripišemo naključne vrednosti) in se nato v vsakem koraku premaknemo po krivulji v smeri negativnega odvoda, to je smer, kjer funkcija najhitreje pada. Dolžino vsakega premika določa stopnja učenja $\eta$, zato je pomembno kakšno vrednost zanjo izberemo.
+\\
+
+Za pravilom delta stoji \emph{gradientno iskanje} , ki ni nič drugega kot iskanje lokalnega minimuma. Iskanje poteka tako, da začnemo na naključni točki na grafu (zato utežem na začetku pripišemo naključne vrednosti) in se nato v vsakem koraku premaknemo po krivulji v smeri negativnega odvoda, to je smer, kjer funkcija najhitreje pada. Dolžino vsakega premika določa stopnja učenja $\eta$, zato je pomembno kakšno vrednost zanjo izberemo. $\eta$ poleg hitrosti konvergence vpliva še na robustnost na lokalne
+minumume - če je $\eta$ premajhen se lahko zgodi, da gradiento iskanje ne
+bo našlo lokalnega minimuma.
 
 \subsection{Vzvratno razširjanje napake}
 %IDEJA in opis
@@ -390,7 +399,7 @@ kjer je
 A_{ki}(l) = \sum^{N_{k-1}}_{j=1}W^{(k)}_{ij}H_{k-1,j}(l)\text.
 \end{equation*}
 %
-V zgornji enačbi $H_{k-1,j}$ označuje že izračunane vrednosti nevronov v predhodnem sloju.
+V zgornji enačbi $H_{k-1,j}$ označuje že izračunane izhode nevronov v predhodnem sloju.
  
  V izhodnem sloju dobimo vrednosti, ki nas najbolj zanimajo. Velja:
 %
@@ -414,7 +423,7 @@ E(l) = \frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l)\text.
 \label{napaka}
 \end{equation}
 %
-Napako želimo minimalizirati in podobno kor prej s pomočjo gradientnega iskanja uteži popraviti v smeri njenega negativnega odvoda. Nove uteži izračunamo s pomočjo enake formule kot prej (enačba \eqref{utezi}):
+Napako želimo minimalizirati in podobno kor prej s pomočjo gradientnega iskanja uteži popraviti v smeri njenega negativnega odvoda. Nove uteži izračunamo s pomočjo enake formule kot prej (enačba~\eqref{utezi}):
 \begin{equation*}
 W^{N} = W - \eta \frac{dE}{dW}, 
 \end{equation*}
@@ -423,12 +432,12 @@ kjer $\eta$ označuje stopnjo učenja.
 
 Pri izračunu zgornjega odvoda si bomo pomagali s verižnim pravilom za odvajanje. Za izhodni sloj je napako enostavo izračunati. Problem se pojavi pri skritih slojih, saj uteži niso direktno odvisne od napake. Kot bomo videli v nadaljevanju, si bomo tudi v tem primeru pomgali z verižnim pravilom. 
 
-Najprej razpišimo formulo \eqref{napaka}, kjer upoštevamo formuli za $e_i$ in $Y_i$:
+Najprej razpišimo formulo~\eqref{napaka}, kjer upoštevamo formuli za $e_i$ in $Y_i$:
 \begin{equation*}
 \begin{aligned}
 E(l) &= \frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l) \\
-&=\frac{1}{2}\sum^{N_Y}_{i=1}{(d_i(l) - Y_i(l))}^2(l) \\
-&= \frac{1}{2}\sum^{N_Y}_{i=1}\left(d_i(l)-f(\sum^{N_m}_{j=1}W^{(m+1)}_{ij}H_{m,j}(l))\right)^2
+&=\frac{1}{2}\sum^{N_Y}_{i=1}{\left(d_i(l) - Y_i(l)\right)}^2 \\
+&= \frac{1}{2}\sum^{N_Y}_{i=1}\left(d_i(l)-f\left(\sum^{N_m}_{j=1}W^{(m+1)}_{ij}H_{m,j}(l)\right)\right)^2
 \end{aligned}
 \end{equation*}
 %
@@ -444,7 +453,7 @@ E(l) &= \frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l) \\
 Zgornje parcialne odvode pa lahko ob pomoči definicij posameznih izrazov zapišemo sledeče:
 %
 \begin{equation}
-\frac{\partial E(l)}{\partial e_i(l)} = \frac{\partial (\frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l))}{\partial e_i(l)}=e_i(l)
+\frac{\partial E(l)}{\partial e_i(l)} = \frac{\partial}{\partial e_i(l)}\left(\frac{1}{2}\sum^{N_Y}_{i=1}e_i^2(l)\right)=e_i(l)
 \end{equation}
 %
 \begin{equation}
@@ -456,10 +465,10 @@ Zgornje parcialne odvode pa lahko ob pomoči definicij posameznih izrazov zapiš
 \end{equation}
 %
 \begin{equation}
-\frac{\partial A_i(l)}{\partial W^{(m+1)}_{ij}} =\frac{\partial \sum^{N_m}_{j=1}W_{ij}^{(m+1)}H_{m,j}(l)}{\partial W^{(m+1)}_{ij}} = H_{mj}(l)
+\frac{\partial A_i(l)}{\partial W^{(m+1)}_{ij}} =\frac{\partial}{\partial W^{(m+1)}_{ij}} \left(\sum^{N_m}_{j=1}W_{ij}^{(m+1)}H_{mj}(l)\right) = H_{mj}(l)
 \end{equation}
 %
-Pri tem velja, da je $f'$ odvod funkcije aktivacije in je odvisen od tega, katero funkcijo aktivacije uporabimo. 
+Pri tem velja, da je $f'$ odvod funkcije aktivacije. 
 
 Zaradi boljše preglednosti parcialni odvod zapišemo še malo drugače:
 \begin{equation*}
@@ -477,9 +486,11 @@ Zaradi boljše preglednosti parcialni odvod zapišemo še malo drugače:
 Označimo: 
 %
 \begin{equation}
-\frac{\partial E(l)}{\partial A_i(l)} = \Delta^{(m+1)}_i(l)
+\frac{\partial E(l)}{\partial A_i(l)} = \Delta^{(m+1)}_i(l)\text{,}
 \label{eq:deltaY}
 \end{equation}
+%
+kjer se $\Delta^{(m+1)}$ navezuje na stanja nevronov v izhodnem sloju.
 %
 Združimo vse zgornje rezultate in zapišemo:
 %
@@ -533,7 +544,7 @@ prvi člen pa ponovno razpišemo s pomočjo verižnega pravila sledeče:
 \end{aligned}
 \end{equation*}
 %
-Pri tem velja, da so elementi matrike uteži $W^{N(m+1)}$ vrednosti, ki smo jih že popravili v prejšnjem koraku. Uporabimo enačbo \eqref{eq:deltaY} in izrazimo vrednost $\Delta^{(m)}_i(l)$ sledeče:
+Pri tem velja, da so elementi matrike uteži $W^{N(m+1)}$ vrednosti, ki smo jih že popravili v prejšnjem koraku. Uporabimo enačbo~\eqref{eq:deltaY} in izrazimo vrednost $\Delta^{(m)}_i(l)$ sledeče:
 %
 \begin{equation*}
 \begin{aligned}
@@ -602,21 +613,21 @@ Kljub temu, da je vzvratno razširjanje napake zelo priljubljeno pravilo pri uč
 
 Gradientno iskanje temelji na iskanju lokalnega minimuma, posledično uteži ne konvergirajo vedno k globalno najboljši izbiri. Lahko se zgodi, da bo matrika uteži konvergirala k lokalnemu optimumu, taka mreža ne bo dajala zadovoljivih rezultatov. Kam bodo uteži konvergirale je odvisno predvsem od njihove začetne izbire. Če med učenjem pride do omenjenega problema moramo izbrati novo naključno matriko uteži in učenje ponoviti v upanju, da bodo uteži tokrat konvergirale k optimalnim.
 
-Naslednji problem, ki se pojavi kot posledica gradientnega iskanja je določanje parametra $\eta$. Stopnja učenja določa kako hitro in kam bodo uteži konvergirale. Žal pa ni pravila, ki bi določalo kakšno vrednost je za $\eta$ najbolje izbrati. Do take vrednosti lahko pridemo le s poskušanjem.
+Naslednji problem, ki se pojavi kot posledica gradientnega iskanja je določanje parametra $\eta$. Stopnja učenja vpliva na to kako hitro in kam bodo uteži konvergirale. Žal pa ni pravila, ki bi določalo kakšno vrednost je za $\eta$ najbolje izbrati. Do take vrednosti lahko pridemo le s poskušanjem.
 
 Slabost vzvratnega razširjanja napake je tudi to, da je za učenje nevronske mreže potrebno zelo veliko število učnih primerov. Ponavadi se to število giblje med nekaj $10000$ in $100000$. Posledično je učenje lahko zelo zamudno.
 
-Potrebno je omeniti še časovno zahtevnost. Zaradi svoje kompleksne zgradbe so nevronske mreže časovno potratne in njihovo učenje praviloma ni hitro. Z večjo mrežo le to zahtevnost še povečamo. Kljub temu, pa lahko z različnimi implementacijami malo vplivamo na hitrost mreže.
+Potrebno je omeniti še časovno zahtevnost. Zaradi svoje kompleksne zgradbe so nevronske mreže časovno potratne in njihovo učenje praviloma ni hitro. Z večjo mrežo le to zahtevnost še povečamo. Kljub temu, pa lahko z različnimi implementacijami malo vplivamo na hitrost učenja mreže.
 
-Včasih se lahko zgodi, da napaka mreže med učenjem začne rasti. Pomembno je, da učenje takrat prekinemo, saj lahko sicer pride do preprileganja (ang. overfitting). Preprileganje pomeni, da mreža zelo dobro deluje na učnih primerih (napaka je tu majhna), aproksimacija za poljuben primer pa ni natančna. Zato je pomembno, da med učenjem ves čas spremljamo vrednost napake.
+Včasih se lahko zgodi, da napaka mreže med učenjem začne naraščati. Pomembno je, da učenje takrat prekinemo, saj lahko sicer pride do preprileganja (ang. overfitting). Preprileganje pomeni, da mreža zelo dobro deluje na učnih primerih (napaka je tu majhna), aproksimacija za poljuben primer izven množice učnih primerov pa ni natančna. Zato je pomembno, da med učenjem ves čas spremljamo vrednost napake na primerih iz posebne množice testnih primerov, ki jih ne uporabljamo za učenje.
 %
 \subsection{Pristranskost in varianca}
 Po končanem učenju lahko izračunamo pristranskost (ang. bias) in varianco nevronske mreže. Ta podatka povesta, kako uspešni smo bili pri aproksimaciji funkcije oziroma učenju nevronske mreže. Ker gre za aproksimacijo, bo pristranskost vedno prisotna, želimo pa si, da bi bila le ta čim manjša. Omenjeni količini izračunamo s pomočjo testnih primerov.
 
-S $t$ označimo točno vrednost, ki bi jo želeli dobiti, s $\hat{t}$ pa vrednost, ki jo mreža vrne. Z $E[\hat{t}]$ označimo pričakovano napoved, to je povprečje vrednosti, ki jih dobimo, če mrežo poženemo na  več testnih primerih. Pristranskost mreže pri $t$-tem učnem primeru označimo z $N(t)$ in izračunamo sledeče:
+S $t$ označimo točno vrednost, ki bi jo želeli dobiti, s $\hat{t}$ pa vrednost, ki jo mreža vrne. Z $\operatorname{E}[\hat{t}]$ označimo pričakovano vrednost napovedi, to je povprečna vrednost napovedi modelov naučenih iz različnih učnih množic. Pristranskost mreže pri $t$-tem učnem primeru označimo z $N(t)$ in izračunamo sledeče:
 %
 \begin{equation}
-N(t) = E[\hat{t}] - t \text.
+N(t) = \operatorname{E}[\hat{t}] - t \text.
 \end{equation}
 %
 Problem se pojavi, če točne vrednosti $t$ ne poznamo. Včasih lahko iz ostalih podatkov sklepamo kakšna bi ta vrednost morala biti ali pa jo poskusimo oceniti na drugačen način. Pristranskost meri, kako dobro mreža deluje na učnih primerih. Majhna pristranskost pomeni, da je bilo učenje uspešno in da bo vsaj napoved na primerih, s katerimi smo mrežo učili, dobra. Če je pristranskost prevelika jo zmanjšamo tako, da izberemo večjo nevronsko mrežo.
@@ -624,22 +635,22 @@ Problem se pojavi, če točne vrednosti $t$ ne poznamo. Včasih lahko iz ostalih
 Nadalje definiramo še varianco
 %
 \begin{equation}
-Var(\hat{t}) = E[E[\hat{t}] -\hat{t}]^2\text.
+Var(\hat{t}) = \operatorname{E}[\operatorname{E}[\hat{t}] -\hat{t}]^2\text.
 \end{equation}
 %
-Kot je razvidno iz zgornje enačbe, $Var(\hat{t})$ ni odvisna od točnih vrednosti $t$. Varianca meri, kako točna bo napoved mreže pri neznanih podatkih. Stremimo k temu, da bi bila varianca čim manjša. Če je le ta prevelika, jo zmanjšamo tako, da povečamo število učnih primerov. Če je varianca še vedno velika, lahko poskusimo tudi z drugačno topologijo mreže.
+Kot je razvidno iz zgornje enačbe, $Var(\hat{t})$ ni odvisna od točnih vrednosti $t$. Varianca meri  občutljivost napovedi na spremembe učne množice. Stremimo k temu, da bi bila varianca čim manjša. Če je le ta prevelika, jo zmanjšamo tako, da povečamo število učnih primerov. Če je varianca še vedno velika, lahko poskusimo tudi z drugačno topologijo mreže.
 
-Spomnimo se, kako se glasi napaka, ki jo pri posplošenem pravilu delta želimo minimalizirati. Če enačbo napake (enačba \eqref{napaka}) prepišemo v smislu novo označnih količin, dobimo:
+Spomnimo se, kako se glasi napaka, ki jo pri posplošenem pravilu delta želimo minimalizirati. Če enačbo napake (enačba~\eqref{napaka}) prepišemo v smislu novo označnih količin, dobimo:
 %
 \begin{equation}
 \begin{aligned}
-E[(\hat{t}-t)^2] &= E[(\hat{t} -E[\hat{t}] + E[\hat{t}] - t)^2]  \\
+\operatorname{E}[(\hat{t}-t)^2] &= \operatorname{E}[(\hat{t} -\operatorname{E}[\hat{t}] + \operatorname{E}[\hat{t}] - t)^2]  \\
 \end{aligned}
 \end{equation}
-Upoštevamo še $E[t] = t$ in $E[E[\hat{t}]\hat{t}] = E[\hat{t}]^2$ in zapipšemo:
+Upoštevamo še $\operatorname{E}[t] = t$ in $\operatorname{E}[\operatorname{E}[\hat{t}]\hat{t}] = \operatorname{E}[\hat{t}]^2$ in zapipšemo:
 \begin{equation}
 \begin{aligned}
-E[(\hat{t}-t)^2] &= (E[\hat{t}] - t)^2 +E[E[\hat{t}] -\hat{t}]^2\\
+\operatorname{E}[(\hat{t}-t)^2] &= (\operatorname{E}[\hat{t}] - t)^2 +\operatorname{E}[\operatorname{E}[\hat{t}] -\hat{t}]^2\\
 &= N(t)^2 + Var(\hat{t})
 \end{aligned}
 \end{equation}
@@ -650,17 +661,17 @@ Iz zgornje enačbe vidimo, da sta pristranskost in varianca mreže tesno povezan
   \centering
     \includegraphics[width=0.5\textwidth]{bias.jpg}
   \label{fig:bis}
- \caption{Pristranskost in varianca, vir\cite{bias}}
+ \caption{Pristranskost (ang.~bias) in varianca (ang.~variance), vir\cite{bias}}
 \end{figure}
 %
 
-Če se zgodi, da je pristranskost majhna, varianca pa velika, temu pravimo preprileganje nevronske mreže. To pomeni, da mreža zelo dobro deluje na učnih podatkih, ni pa sposobna znanja posplošiti na poljubne vhodne podatke.
-Po drugi strani lahko pride do neprileganja. To se zgodi, če sta tako pristranskost kot varianca veliki. Taka mreža ni sposobna dobro aproksimirati niti učnih podatkov, na dobro predikcijo splošnih podatkov lahko pozabimo.
+Če bomo izbrali kompleksno topologijo nevronske mreže (torej veliko število skritih plasti in nevronov - globoko mrežo) bo pristranskost majhna, a zaradi občutljivosti velikega števila uteži na male spremembe učne množice je varianca lahko zelo visoka. Zato v takem primeru obstaja nevarnost preprileganja (ang.~overfitting). To pomeni, da bo mreža zelo dobro delovala na učnih podatkih, ne bo pa sposobna znanja posplošiti na poljubne vhodne podatke.
+Po drugi strani pri izboru enostavne topologije (torej topologije z malim številom skritih plasti in nevronov) opazujemo visoko pristranskost, a hkrati nizko varianco -- v takih situacijah obstaja resna možnost neprileganja (ali podprileganja, ang.~underfitting). Taka mreža ne bo sposobna dobro aproksimirati niti učnih podatkov, na dobro predikcijo splošnih podatkov lahko pozabimo.
 
 Če pride do preprileganja moramo učenje ponoviti, le da tokrat izberemo drugačne vrednosti začetnih uteži. Postopek ponavljamo, dokler z delovanjem mreže nismo zadovoljni. Neprileganje lahko odpravimo tako, da spremenimo topologijo mreže. Lahko dodamo oziroma odstranimo nevrone, sloje ali pa dodamo kakšen parameter v vhodni sloj nevronov. Prav tako lahko dodamo nekaj učnih primerov oziroma izboljšamo njihovo kakovost. Načeloma velja, da več učnih primerov kot bomo pognali, bolje bo mreža delovala.
 %
 \subsection{Normalizacija podatkov}
-Različne vhodne vrednosti imajo lahko različne enote in se razlikujejo za kar nekaj velikostnih redov. Taki podatki pri učenju ne bodo dali dobrih rezultatov. Da optimiziramo delovanje mreže, je podatke pred učenjem potrebno normalizirati oziroma pretvoriti v enak velikostni red. Želimo si, da bi bili podatki majhni, tako bo učenje boljše. Obstaja več pravil za normalizacijo podatkov, najbolj pogosti sta min-max normalizacija in z-score normalizacija, ki je včasih omenjena tudi kot standarizacija. Kako bomo podatke normalizirali je odvisno od primera, ki ga obravnavamo.
+Različne vhodne vrednosti imajo lahko različne enote in se razlikujejo za kar nekaj velikostnih redov. Taki podatki pri učenju ne bodo dali dobrih rezultatov. Da optimiziramo delovanje mreže, je podatke pred učenjem potrebno normalizirati oziroma pretvoriti v enak velikostni red. Želimo si, da bi bili podatki majhni, tako bo učenje boljše. Obstaja več pravil za normalizacijo podatkov, najbolj pogosti sta min-max normalizacija in z-score normalizacija, ki jo včasih imenujemo tudi standarizacija. Kako bomo podatke normalizirali je odvisno od primera, ki ga obravnavamo.
 %
 \subsubsection{Min-max normalizacija}
 Podatke normaliziramo po sledeči enačbi:
@@ -699,8 +710,8 @@ let activation_layer funct layer =
 \label{algoritem}
 \end{listing}
 %%
-\subsubsection{Čiste funkcije}
-Funkcija je čista (ang. pufe function), če med izvajanjem ne sproži nobenih stranskih učinkov kot so npr.\ izpisovanje na zaslon, branje z tipkovnice, spreminjanje vrednosti spremenljivk\ldots\ Poleg tega čiste funkcije pri enakih argumentih vedno vračajo enak rezultat, posledično lahko tako funkcijo vedno zamenjamo z njeno definicijo.  Čiste funkcije v praksi pomenijo manj napak med programiranjem, če se le te že pojavijo, jih je lahko najti in odpraviti. V funkcijskem programiranju je večina funkcij čistih, saj funkcije načeloma vrednosti ne spreminjajo, ampak jih vračajo. 
+
+\emph{Čiste funkcije} so pomemben koncept v funkcijskem programiranju. Funkcija je \emph{čista} (ang. pure function), če med izvajanjem ne sproži nobenih stranskih učinkov kot so npr.\ izpisovanje na zaslon, branje z tipkovnice, spreminjanje vrednosti spremenljivk\ldots\ Poleg tega čiste funkcije pri enakih argumentih vedno vračajo enak rezultat, posledično lahko tako funkcijo vedno zamenjamo z njeno definicijo.  Čiste funkcije v praksi pomenijo manj napak med programiranjem, če se le te že pojavijo, jih je lahko najti in odpraviti. V funkcijskem programiranju je večina funkcij čistih, saj funkcije načeloma vrednosti ne spreminjajo, ampak jih vračajo. 
 \subsection{Lastnosti OCamla}
 OCaml je splošen programski jezik, kljub temu da ima veliko lastnosti funkcijskih jezikov. Poleg le teh, ima OCaml tudi lastnosti objektnega programiranja. 
 Posledično OCaml odlikuje kar nekaj pozitivnih lastnosti. Izvajanje kode je hitro in učinkovito, jezik ima velik poudarek tudi na varnosti, zato do napak le redko prihaja.
@@ -717,20 +728,21 @@ OCaml ima dobro podprt sistem tipov. Tipi v OCamlu so statični, a se tudi tej l
 %
 %\subsection{Tipi in moduli}
 \section{Implementacija nevronske mreže}
-Del diplomske naloge je bila tudi implementacija usmerjene nevronske mreže v programskem jeziku OCaml. Cilj je bil implementirati generičen večslojni perceptron z vzvratnim razširjanjem napake. Nadalje sem nevronsko mrežo tudi testirala na danem naboru podatkov in jo analizirala. Celotna koda se nahaja na koncu naloge, v prilogi \ref{priloga}.
-
+Del diplomske naloge je bila tudi implementacija usmerjene nevronske mreže v programskem jeziku OCaml. Cilj je bil implementirati generičen večslojni perceptron z vzvratnim razširjanjem napake. Nadalje sem nevronsko mrežo tudi testirala na danem naboru podatkov in jo analizirala. Celotna koda se nahaja na koncu naloge, v prilogi~\ref{priloga}.
+%
 \subsection{Primer nevronske mreže}
-Glavna funkcija, ki poskrbi, da se mreža nauči delovanja je \texttt{train\_network}. Funkcija vrne seznam matrik uteži, sprejme pa naslednje vhodne podatke:
+Glavna funkcija, ki poskrbi, da se mreža nauči delovanja je funkcija  \texttt{train\_network}. Funkcija vrne seznam matrik naučenih uteži med sloji, sprejme pa naslednje vhodne podatke:
 \begin{itemize}
-	\item input\_array: tabela vhodnih vektorjev
-	\item output\_array: tabela pripadajočih želenih izhodnih vektorjev
-	\item network\_topology: tabela, ki opisuje topologijo mreže s št. nevronov po slojih 
-	\item rate: stopnja učenja 
-	\item bound: meja, ki določa maksimalno vrednost začeno nastavljenih naključnih uteži
-	\item act\_fun: funkcija aktivacije
-	\item act\_der: odvod funkcije aktivacije
+	\item \texttt{input\_array}: tabela vhodnih vektorjev
+	\item \texttt{output\_array}: tabela pripadajočih želenih izhodnih vektorjev
+	\item \texttt{network\_topology}: tabela, ki opisuje topologijo mreže s št. nevronov po slojih 
+	\item \texttt{rate}: stopnja učenja 
+	\item \texttt{bound}: meja, ki določa maksimalno vrednost začeno nastavljenih naključnih uteži
+	\item \texttt{act\_fun}: funkcija aktivacije
+	\item \texttt{act\_der}: odvod funkcije aktivacije
 \end{itemize}
-Posledično se signatura funkcije glasi:
+%
+Signatura funkcije se glasi:
 %
 \begin{listing}[!h]
 	\begin{minted}{ocaml}
@@ -743,25 +755,78 @@ val train_network :
 	\caption{Signatura funkcije \texttt{train\_network}}
 	\label{signatura}
 \end{listing}
-%%
+
+Nadalje s pomočjo funkcije \texttt{predict} in naučenih uteži napovemo vrednosti za poljubne vhodne podatke. Le ta sprejme tabelo \texttt{input}, ki predstavlja vektor vhodnih podatkov, matriko \texttt{network}, ki predstavlja nevrone v nrevronski mreži, matriko matrik \texttt{weights}, ki predstavlja uteži med posameznimi sloji in funkcijo aktivacije \texttt{act\_fun}, ki jo želomo uporabiti. Funkcija vrne tabelo, ki predstavlja vekor napovedanih vrednosti. Signatura je tako:
+%
+\begin{listing}[!h]
+	\begin{minted}{ocaml}
+val predict :
+	float array ->
+	float array array ->
+	float array array array -> (float -> float) -> 
+	float array = 
+<fun>
+	\end{minted} 
+	\caption{Signatura funkcije \texttt{predict}}
+	\label{signatura2}
+\end{listing}
+%
 \subsection{Evalvacija na naboru podatkov}
+Delovanje nevronske mreže sem preizkusila in analizirala na naboru podatkov, ki sem jih pridobila s spletnega naslova \url{https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset}.
+
+ Vse fun\-kci\-je, ki sem jih uporabila pri analizi delovanja nevronske mreže so vključene v nalogo in se nahajajo v prilogi~\ref{priloga}.
+%
+\subsubsection{Nabor podatkov o izposoji koles}
+Nabor vsebuje informacije o številu izposojenih koles za posamezen dan med letoma $2011$ in $2012$. Število izposojenih koles je odvisno od naslednjih vhodnih podatkov: 
+\begin{itemize}
+	\item letni čas: $1$ - zima, $2$ - pomlad, $3$ - poletje, $4$ - jesen
+	\item leto: $0$ - leto $2011$, $1$ - leto $2012$
+	\item mesec: $1$ do $12$
+	\item praznik: $1$, če je bil dan praznik, $0$ sicer
+	\item dan v tednu: $0$ do $6$, $0$ predstavlja nedeljo
+	\item delovni dan: $1$, če je dan delovni, $0$ če je praznik ali vikend
+	\item vreme: $1$ - jasno, posamezni oblaki, delno oblačno, $2$ - meglice, posamezni oblaki, oblačno,  $3$ - rahel sneg, rahel dež z razpršenimi oblaki, rahel dež v nevihtami, $4$ - nalivi, toča, nevihte, sneg, megla
+	\item temperatura: vrednosti so podane v stopinjah celzija in normalizirane sledeče: $t=\nicefrac{(t-t_{min})}{(t_{max}-t_{min})}$, kjer je $t_{min}=-8$, $t_{max}=+39$
+	\item občutek mraza: vrednosti so podane v stopinjah celzija in normalizirane sledeče: $t=\nicefrac{(t-t_{min})}{(t_{max}-t_{min})}$, kjer je $t_{min}=-16$, $t_{max}=+50$
+	\item vlažnost: normalizirana vrednost vlažnosti, vrednosti so deljene s $100$, kar je maksimalna vrednost
+	\item veter: normalizirana hitrost vetra, vrednosti so deljene s $67$, kar je maksimalna vrednost
+\end{itemize}
+
+Uporabniki koles so razdeljeni na občasne in registrirane uporabnike, tako podatkovni nabor vsebuje informacije o številu obeh množic in njuni vsoti. Izhodni podatki so torej:
+\begin{itemize}
+	\item število občasnih uporabnikov,
+	\item število registriranih uporanikov,
+	\item vsota vseh uporabnikov (občasnih in registriranih).
+\end{itemize}
+
+Nabor podatkov vsebuje informacije o izposoji koles za $731$ dni, od teha sem $600$ primerov uporabila za učenje, na $131$ primerih pa sem testirala delovanje nevronske mreže.
+%
+\subsubsection{Analiza delovanja nevronske mreže}
+Delovanje mreže sem analizirala s pomočjo povprečne absolutne nakake. Le to sem izračunala tako, da sem za vsak testni primer izračunala napako med želeno vrednostjo in vrednostjo napovedano s pomočjo nevronske mreže, nato pa sem vzela povprečje teh napak za vse testne primere. Da bi bili izračuni kar se da natančni, sem učenje mreže ponovila na petdesetih različnih začetnih utežeh in na koncu izračunala povprečje vseh napak. Napako sem računala posebej za vsakega izmed izhodnih parametrov.
+
+Da je bilo učenje nevronske mreže uspešno, vidimo tako da primerjamo napako pri napovedih z naključno izbranimi utežmi z napako pri napodedih z naučenimi utežmi. Napaka naučenih uteži je seveda odvisna od topologije in pa stopnje učenja, ki jo izberemo. S poskušanjem sem prišla do ugotovitve, da je pri danem problemu najustreznejša topologija z eno skrito plastjo.
+% Pri evalvaciji sem uporabila topologijo z desetimi nevroni v skritem sloju, za stopnjo učenja sem izbrala $\eta = 0.5$. Vpliv teh dveh parametrov na uspešnost učenja je analiziran v nadaljevanju.
+S funkcijo BLLLA testiramo, kdaj 
 
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[width=1\textwidth]{rate.jpg}
 	\label{fig:rate}
-	\caption{BLAAAA}
+	\caption{Vpliv stopnje učenja na učenje nevronske mreže}
 \end{figure}
-
+Analizirala sem tudi, kako stopnja učenja vpliva na učenje nevronske mreže. Pri fiksni topologiji z eno skrito plastjo in desetimi nevroni v njej sem spreminjala stopnjo učenja. Iz grafa~\ref{fig:rate}, ki prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti od stopnje učenja, je razvidno, da je napaka najmanjša, pri vrednostih $\eta = 0.5$ in $\eta = 1$.
 
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[width=1\textwidth]{lay.jpg}
 	\label{fig:lay}
-	\caption{DOPIŠI}
+	\caption{Vpliv števila nevronov v enem skritem sloju na učenje nevronske mreže}
 \end{figure}
 %test rate je pri topologiji 11,10,3
 %test top je pri stopnji učenja 0.5
+Nadalje me je zanimalo še, kakšna bi bila najbolj optimalna topologija za delovanje nevronske mreže. To sem testirala tako, da sem pri fiksni stopnji učenja $\eta = 0.5$ spreminjala število skritih nevronov. Ostala pa sem le pri enem sloju skritih nevronov, saj gre za majhen podatkovni nabor in bi bila topologija z več skritimi sloji že prekompleksna, kar bi se pokazalo z slabim delovanjem nevronske mreže in posledično veliko napako pri napovedovanju. 
+Graf~\ref{fig:lay} prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti števila skritih nevronov. Iz grafa je razvidno, da je napaka najmanjša pri topologiji z med pet in deset nevroni v skritem sloju.
+
 
 \section{Priloga} \label{priloga}
 \inputminted{ocaml}{nevronske_mreze.ml}

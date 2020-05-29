@@ -2,7 +2,7 @@
 #use "csv_ocaml.ml";;
 	
 let topology = [|11;10;3|]	
-let rate = 1.0
+let rate = 0.5
 
 let r_ana = [|0.00001; 0.00005; 0.0001; 0.0005; 0.001; 0.005; 0.01; 0.05; 0.1; 0.5; 1.0; 5.0; 10.; 50.; 100.0;500.0; 1000.0|]
 
@@ -61,11 +61,59 @@ let error_mean_untrained = evaluate test_examples test_out w topology sigmoid me
 let error_mean_trained_input = evaluate test_examples test_out trained_w_input topology sigmoid mean_i std_i mean_o std_o
 
 let analysis1 = analysis_error input out test_examples test_out topology sigmoid d_sigmoid rate 50 
-(* let analysis2 = analysis_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50  *)
-(* let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50  *)
+let analysis2 = analysis_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50 
+let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50 
 
-(* (* let bias_trained = bias test_examples test_out trained_weights topology sigmoid mean_i std_i mean_o std_o *) *)
-(* (* let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o *) *)
+
+let bias test_input test_output weights network_topology 
+	act_fun mean_in std_in mean_out std_out =
+	let network = initialize_network network_topology in
+	let n = Array.length test_input in
+	let o1 = Array.length test_output.(0) in
+	let out = Array.make_matrix n o1 0. in
+	for i=0 to n-1 do
+		let prediction = predict (
+			norm_z_score test_input.(i) mean_in std_in) 
+			network weights act_fun in
+		let norm_pred = denorm_z_score prediction 
+			mean_out std_out in
+		out.(i) <- norm_pred;
+	done;
+	let o_m = mean out in
+	let bias = Array.make_matrix n o1 0. in
+	for i=0 to n-1 do
+		for j=0 to (o1-1) do	
+			bias.(i).(j) <- test_output.(i).(j) -. o_m.(j);
+		done;
+	done;
+	bias
+
+let variance test_input weights network_topology act_fun 
+	mean_in std_in mean_out std_out  = 	
+	let network = initialize_network network_topology in
+	let n = Array.length test_input in
+	let o1 = network_topology.(Array.length network_topology - 1) in
+	let out = Array.make_matrix n o1 0. in
+	for i=0 to n-1 do
+		let prediction = predict 
+			(norm_z_score test_input.(i) mean_in std_in) 
+			network weights act_fun in
+		let norm_pred = denorm_z_score 
+		prediction mean_out std_out in
+		out.(i) <- norm_pred;
+	done;
+	let o_m = mean out in
+	let v = Array.make_matrix n o1 0. in
+	for i=0 to n-1 do
+		for j=0 to (o1-1) do	
+			v.(i).(j) <- (out.(i).(j) -. o_m.(j))**2.;
+		done;
+	done;
+	let var = mean v in
+	var
+	
+let bias_trained = bias test_examples test_out trained_weights topology sigmoid mean_i std_i mean_o std_o
+let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o
 
 (* (* let rate_ana = rate_analysis r_ana input out test_examples test_out topology sigmoid d_sigmoid *) *)
 

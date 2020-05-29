@@ -337,8 +337,7 @@ let evaluate test_input test_output weights network_topology
 	
 	
 (*n-krat požene evaluate na n različnih mrežah, 
-n krat nauči in pogleda napako*)
-(* funkcija, ki napove vrednost pri testnem primeru
+n krat nauči in pogleda napako
 vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -371,6 +370,22 @@ let analysis_error train_input train_output test_input
 	let e_m = mean e in
 	e_m
 	
+(*n-krat požene evaluate na n različnih mrežah, 
+mreže ne nauči, le izračuna napako
+vhod:
+- train_input: tabela vhodnih učnih vektorjev
+- train_output: tabela vhodnih testnih vektorjev
+- test_input: tabela izhodnih učnih vektorjev
+- test_output: tabela izhodnih testnih vektorjev
+- network_topology: tabela, ki opisuje topologijo mreže
+- act_fun: funkcija aktivacije
+- act_der: odvod funkcije aktivacije
+- rate: stopnja učenja
+- n: število ponovitev
+izhod:
+- povprečna napaka med dobljeno in želeno vrednostjo 
+pri nenaučenih utežeh
+ *)		
 let analysis_unlearned train_input train_output test_input 
 	test_output network_topology act_fun act_der rate n =
 	let o1 = Array.length test_output.(0) in
@@ -389,6 +404,22 @@ let analysis_unlearned train_input train_output test_input
 	let e_m = mean e in
 	e_m
 
+(*prešteje, kolikorat je bilo učenje z naučeno mrežo boljše 
+ (napaka je bila manjša), kot učenje z nenaučeno mrežo
+ vhod:
+- train_input: tabela vhodnih učnih vektorjev
+- train_output: tabela vhodnih testnih vektorjev
+- test_input: tabela izhodnih učnih vektorjev
+- test_output: tabela izhodnih testnih vektorjev
+- network_topology: tabela, ki opisuje topologijo mreže
+- act_fun: funkcija aktivacije
+- act_der: odvod funkcije aktivacije
+- rate: stopnja učenja
+- n: število ponovitev
+izhod:
+- tabela s številom uspešnih učenj po izhodnih
+	parametrih
+ *)	
 let learned_vs_unlearned train_input train_output test_input 
 	test_output network_topology act_fun act_der rate n =
 	let o1 = Array.length test_output.(0) in
@@ -416,54 +447,22 @@ let learned_vs_unlearned train_input train_output test_input
 	done;
 	count
 	
-let bias test_input test_output weights network_topology 
-	act_fun mean_in std_in mean_out std_out =
-	let network = initialize_network network_topology in
-	let n = Array.length test_input in
-	let o1 = Array.length test_output.(0) in
-	let out = Array.make_matrix n o1 0. in
-	for i=0 to n-1 do
-		let prediction = predict (
-			norm_z_score test_input.(i) mean_in std_in) 
-			network weights act_fun in
-		let norm_pred = denorm_z_score prediction 
-			mean_out std_out in
-		out.(i) <- norm_pred;
-	done;
-	let o_m = mean out in
-	let bias = Array.make_matrix n o1 0. in
-	for i=0 to n-1 do
-		for j=0 to (o1-1) do	
-			bias.(i).(j) <- test_output.(i).(j) -. o_m.(j);
-		done;
-	done;
-	bias
-
-let variance test_input weights network_topology act_fun 
-	mean_in std_in mean_out std_out  = 	
-	let network = initialize_network network_topology in
-	let n = Array.length test_input in
-	let o1 = network_topology.(Array.length network_topology - 1) in
-	let out = Array.make_matrix n o1 0. in
-	for i=0 to n-1 do
-		let prediction = predict 
-			(norm_z_score test_input.(i) mean_in std_in) 
-			network weights act_fun in
-		let norm_pred = denorm_z_score 
-		prediction mean_out std_out in
-		out.(i) <- norm_pred;
-	done;
-	let o_m = mean out in
-	let v = Array.make_matrix n o1 0. in
-	for i=0 to n-1 do
-		for j=0 to (o1-1) do	
-			v.(i).(j) <- (out.(i).(j) -. o_m.(j))**2.;
-		done;
-	done;
-	let var = mean v in
-	var
 	
-(*max_rate in min_rate so potence 10*)	
+(* za različne stopnje učenja izračuna povprečno
+absolutno napako pri fiksni topologiji
+vhod:
+- r_vect: tabela vrednosti stopenj učenja
+- train_input: tabela vhodnih učnih vektorjev
+- train_output: tabela vhodnih testnih vektorjev
+- test_input: tabela izhodnih učnih vektorjev
+- test_output: tabela izhodnih testnih vektorjev
+- network_topology: tabela, ki opisuje topologijo mreže
+- act_fun: funkcija aktivacije
+- act_der: odvod funkcije aktivacije
+izhod:
+- povprečna absolutna napaka za vsako stopnjo
+	učenja iz r_vect
+ *)	
 let rate_analysis r_vect train_input train_output test_input 
 	test_output network_topology act_fun act_der =
 	let o1 = Array.length test_output.(0) in 
@@ -481,6 +480,22 @@ let rate_analysis r_vect train_input train_output test_input
 	done;
 	r
 	
+(* za različna števila nevronov v skritem sloju izračuna 
+povprečno absolutno napako pri fiksni stopnji učenja
+vhod:
+- min_hidden: najmanjšte št. sktirih nevronov
+- n: število za kolikor želimo povečati min_hidden
+- train_input: tabela vhodnih učnih vektorjev
+- train_output: tabela vhodnih testnih vektorjev
+- test_input: tabela izhodnih učnih vektorjev
+- test_output: tabela izhodnih testnih vektorjev
+- act_fun: funkcija aktivacije
+- act_der: odvod funkcije aktivacije
+- rate: stopnja učenja
+izhod:
+- povprečna absolutna napaka za vsako topologijo
+	z od min_hidden do n nevroni v skritem sloju
+ *)		
 let topology_analysis min_hidden n train_input train_output 
 	test_input test_output act_fun act_der rate = 
 	let o1 = Array.length test_output.(0) in 

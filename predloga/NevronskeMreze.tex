@@ -731,7 +731,7 @@ OCaml ima dobro podprt sistem tipov. Tipi v OCamlu so statični, a se tudi tej l
 Del diplomske naloge je bila tudi implementacija usmerjene nevronske mreže v programskem jeziku OCaml. Cilj je bil implementirati generičen večslojni perceptron z vzvratnim razširjanjem napake. Nadalje sem nevronsko mrežo tudi testirala na danem naboru podatkov in jo analizirala. Celotna koda se nahaja na koncu naloge, v prilogi~\ref{priloga}.
 %
 \subsection{Primer nevronske mreže}
-Glavna funkcija, ki poskrbi, da se mreža nauči delovanja je funkcija  \texttt{train\_network}. Funkcija vrne seznam matrik naučenih uteži med sloji, sprejme pa naslednje vhodne podatke:
+Glavna funkcija, ki poskrbi, da se mreža nauči delovanja je funkcija  \texttt{train\_network}. Funkcija vrne tabelo matrik naučenih uteži med sloji, sprejme pa naslednje vhodne podatke:
 \begin{itemize}
 	\item \texttt{input\_array}: tabela vhodnih vektorjev
 	\item \texttt{output\_array}: tabela pripadajočih želenih izhodnih vektorjev
@@ -799,32 +799,36 @@ Uporabniki koles so razdeljeni na občasne in registrirane uporabnike, tako poda
 	\item vsota vseh uporabnikov (občasnih in registriranih).
 \end{itemize}
 
-Nabor podatkov vsebuje informacije o izposoji koles za $731$ dni, od teha sem $600$ primerov uporabila za učenje, na $131$ primerih pa sem testirala delovanje nevronske mreže.
+Nabor podatkov vsebuje informacije o izposoji koles za $731$ dni, od tega sem $600$ primerov uporabila za učenje, na $131$ primerih pa sem testirala delovanje nevronske mreže.
 %
 \subsubsection{Analiza delovanja nevronske mreže}
 Delovanje mreže sem analizirala s pomočjo povprečne absolutne nakake. Le to sem izračunala tako, da sem za vsak testni primer izračunala napako med želeno vrednostjo in vrednostjo napovedano s pomočjo nevronske mreže, nato pa sem vzela povprečje teh napak za vse testne primere. Da bi bili izračuni kar se da natančni, sem učenje mreže ponovila na petdesetih različnih začetnih utežeh in na koncu izračunala povprečje vseh napak. Napako sem računala posebej za vsakega izmed izhodnih parametrov.
 
-Da je bilo učenje nevronske mreže uspešno, vidimo tako da primerjamo napako pri napovedih z naključno izbranimi utežmi z napako pri napodedih z naučenimi utežmi. Napaka naučenih uteži je seveda odvisna od topologije in pa stopnje učenja, ki jo izberemo. S poskušanjem sem prišla do ugotovitve, da je pri danem problemu najustreznejša topologija z eno skrito plastjo.
-% Pri evalvaciji sem uporabila topologijo z desetimi nevroni v skritem sloju, za stopnjo učenja sem izbrala $\eta = 0.5$. Vpliv teh dveh parametrov na uspešnost učenja je analiziran v nadaljevanju.
-S funkcijo BLLLA testiramo, kdaj 
+Da je bilo učenje nevronske mreže uspešno, pokažemo s funkcijo\-  \texttt{learned\-\_vs\-\_unlearned}. Funkcija za n primerov primerja povprečno absolutno napako za naučeno in nenaučeno mrežo. Če je napaka pri naučeni mreži manjša, v tabelo na mesto ustreznega izhodnega parametra prištejemo vrednost $1$, če je napaka manjša pri nenaučeni mreži vrednost $1$ odštejemo.
 
-\begin{figure}[!ht]
+Če funkcijo poženemo na $50$ različnih začetnih utežeh pri topologiji z enim skritim slojem z desetimi nevroni in stopnjo učenja $0.5$, funkcija vrne naslednjo tabelo:
+\texttt{val count : int array = [|50; 50; 50|]}. To pomeni, da je bilo učenje uspešno, saj je bila napaka pri napovedi z naučenimi utežmi vsakokrat manjša kot napaka pri napovedi z nenaučenimi utežmi.
+
+Če malo spremenimo topologijo in stopnjo učenja in za topologijo vzamemo dva skrita sloja z desetimi nevroni, za stopnjo učenja pa izberemo vrednost $0.1$ opazimo, da mreža ne deluje več optimalno. Funkcija \-  \texttt{learned\-\_vs\-\_unlearned} vrne tabelo \texttt{val count : int array = [|18; 32; 32|]}, kar pomeni da naučena in nenaučena mreža delujeta skoraj enako dobro. Ta primer prikazuje, kako pomembno je, kakšno topologijo in stopnjo učenja izberemo. 
+
+% Pri evalvaciji sem uporabila topologijo z desetimi nevroni v skritem sloju, za stopnjo učenja sem izbrala $\eta = 0.5$. Vpliv teh dveh parametrov na uspešnost učenja je analiziran v nadaljevanju.
+\begin{figure}[!h]
 	\centering
 	\includegraphics[width=1\textwidth]{rate.jpg}
-	\label{fig:rate}
 	\caption{Vpliv stopnje učenja na učenje nevronske mreže}
+	\label{fig:rate}
 \end{figure}
-Analizirala sem tudi, kako stopnja učenja vpliva na učenje nevronske mreže. Pri fiksni topologiji z eno skrito plastjo in desetimi nevroni v njej sem spreminjala stopnjo učenja. Iz grafa~\ref{fig:rate}, ki prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti od stopnje učenja, je razvidno, da je napaka najmanjša, pri vrednostih $\eta = 0.5$ in $\eta = 1$.
+Tako me je zanimalo, kako stopnja učenja vpliva na delovanje nevronske mreže. Pri fiksni topologiji z eno skrito plastjo in desetimi nevroni v njej sem spreminjala stopnjo učenja. Iz grafa~\ref{fig:rate}, ki prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti od stopnje učenja, je razvidno, da je napaka najmanjša, pri vrednostih $\eta = 0.5$ in $\eta = 1$, tako bo mreža delovala najbolje, če za $\eta$ izberemo število med tema dvema vrednostima.
 
 \begin{figure}[!ht]
 	\centering
 	\includegraphics[width=1\textwidth]{lay.jpg}
-	\label{fig:lay}
 	\caption{Vpliv števila nevronov v enem skritem sloju na učenje nevronske mreže}
+	\label{fig:lay}
 \end{figure}
 %test rate je pri topologiji 11,10,3
 %test top je pri stopnji učenja 0.5
-Nadalje me je zanimalo še, kakšna bi bila najbolj optimalna topologija za delovanje nevronske mreže. To sem testirala tako, da sem pri fiksni stopnji učenja $\eta = 0.5$ spreminjala število skritih nevronov. Ostala pa sem le pri enem sloju skritih nevronov, saj gre za majhen podatkovni nabor in bi bila topologija z več skritimi sloji že prekompleksna, kar bi se pokazalo z slabim delovanjem nevronske mreže in posledično veliko napako pri napovedovanju. 
+Nadalje sem analizirala, kakšna bi bila najbolj optimalna topologija za delovanje nevronske mreže. To sem testirala tako, da sem pri fiksni stopnji učenja $\eta = 0.5$ spreminjala število skritih nevronov. Ostala pa sem le pri enem sloju skritih nevronov, saj gre za majhen podatkovni nabor in bi bila topologija z več skritimi sloji že prekompleksna, kar bi se pokazalo z slabim delovanjem nevronske mreže in posledično veliko napako pri napovedovanju. 
 Graf~\ref{fig:lay} prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti števila skritih nevronov. Iz grafa je razvidno, da je napaka najmanjša pri topologiji z med pet in deset nevroni v skritem sloju.
 
 

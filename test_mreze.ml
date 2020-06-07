@@ -4,7 +4,7 @@
 let topology = [|11;10;3|]	
 let rate = 0.5
 
-let r_ana = [|0.00001; 0.00005; 0.0001; 0.0005; 0.001; 0.005; 0.01; 0.05; 0.1; 0.5; 1.0; 5.0; 10.; 50.; 100.0;500.0; 1000.0|]
+let r_ana = [|0.0001; 0.0005; 0.001; 0.005; 0.01; 0.05; 0.1; 0.5; 1.0; 5.0; 10.; 50.; 100.0;500.0; 1000.0|]
 
 
 let network = initialize_network topology 
@@ -65,7 +65,7 @@ let analysis2 = analysis_unlearned input out test_examples test_out topology sig
 let count = learned_vs_unlearned input out test_examples test_out topology sigmoid d_sigmoid rate 50 
 
 
-let bias test_input test_output weights network_topology 
+(* let bias test_input test_output weights network_topology 
 	act_fun mean_in std_in mean_out std_out =
 	let network = initialize_network network_topology in
 	let n = Array.length test_input in
@@ -113,8 +113,12 @@ let variance test_input weights network_topology act_fun
 	var
 	
 let bias_trained = bias test_examples test_out trained_weights topology sigmoid mean_i std_i mean_o std_o
-let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o
+let var_trained = variance test_examples  trained_weights topology sigmoid mean_i std_i mean_o std_o *)
 
-(* (* let rate_ana = rate_analysis r_ana input out test_examples test_out topology sigmoid d_sigmoid *) *)
+(* let rate_ana = rate_analysis r_ana input out test_examples test_out topology sigmoid d_sigmoid *)
 
-(* let top_ana = topology_analysis 51 100 input out test_examples test_out sigmoid d_sigmoid 0.5 *)
+(* let rate_ana_learning = rate_analysis r_ana input out input out topology sigmoid d_sigmoid *)
+
+let top_ana = topology_analysis 51 50 input out test_examples test_out sigmoid d_sigmoid 0.5
+
+let top_ana_learning = topology_analysis 51 50 input out input out sigmoid d_sigmoid 0.5

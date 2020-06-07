@@ -27,10 +27,10 @@
 
 %  V povzetku na kratko opišite vsebinske rezultate dela. Sem ne sodi razlaga organizacije dela --
 %  v katerem poglavju/razdelku je kaj, pač pa le opis vsebine.
-\povzetek{Diplomsko delo se poglobi v usmerjene nevronske mreže. Le te temeljijo na posnemanju možganskih funkcij, uporabljajo pa se za napovedovanje in klasifikacijo. Sestavljajo jih nevroni organizirani v sloje in med sabo povezani s sinapsami. S pomočjo algoritma vzvratnega razširjanja napake in učnih primerov mrežo naučimo, da se zna odzvati na neznane situacije. Algoritem temelji na spreminjanju uteži na sinapsah, učenje poteka dokler ni napaka med želeno in izračunano vrednostjo dovolj majhna. Poleg nevronskih mrež se delo osredotoči tudi na funkcijsko programiranje s poudarkom na programskem jeziku OCaml. Na koncu je primer nevronske mreže tudi implementiran, na konkretnem primeru je analizirano delovanje mreže.}
+\povzetek{Diplomsko delo se poglobi v usmerjene nevronske mreže. Le te temeljijo na posnemanju možganskih funkcij, uporabljajo pa se za napovedovanje in klasifikacijo. Sestavljajo jih nevroni organizirani v sloje in med sabo povezani s sinapsami. S pomočjo algoritma vzvratnega razširjanja napake in učnih primerov mrežo naučimo, da se zna odzvati na neznane situacije. Algoritem temelji na spreminjanju uteži na sinapsah, učenje poteka dokler ni napaka med želeno in izračunano vrednostjo dovolj majhna. Poleg nevronskih mrež se delo osredotoči tudi na funkcijsko programiranje s poudarkom na programskem jeziku OCaml. Na koncu je primer nevronske mreže tudi implementiran v programsem jeziku OCaml. Delovanje mreže je preverjeno na konkretnem primeru, kjer je vrednotena napaka mreže na podatkovni množici.}
 
 %  Prevod slovenskega povzetka v angleščino.
-\abstract{The paper focuses on feed-forward neural networks. Mimicking brain functions, neural networks are used for prediction and classification. Neural networks are composed of neurons organized in layers and connected by synapses. With the backpropagation algorithm and learning examples the network is able to learn how to respond to unknown situations. Idea behind the backpropagation is to change weights on the synapses until error between computed and desired values in small enough. In addition, paper presents ideas behind functional programming and programming language OCaml. Implementation of neural network and it's analysis is presented in the end of the paper.}
+\abstract{The paper focuses on feed-forward neural networks. Mimicking brain functions, neural networks are used for prediction and classification. Neural networks are composed of neurons organized in layers and connected by synapses. With the backpropagation algorithm and learning examples the network is able to learn how to respond to unknown situations. Idea behind the backpropagation is to change weights on the synapses until error between computed and desired values in small enough. In addition, paper presents ideas behind functional programming and programming language OCaml. Implementation of neural network in programming language OCaml is presented in the end of the paper. Correctness of the algorithm is tested on an actual example, where network error is evaluated on a given learning set.}
 
 % navedite vsaj eno klasifikacijsko oznako --
 % dostopne so na www.ams.org/mathscinet/msc/msc2010.html
@@ -771,13 +771,13 @@ val predict :
 	\label{signatura2}
 \end{listing}
 %
-\subsection{Evalvacija na naboru podatkov}
-Delovanje nevronske mreže sem preizkusila in analizirala na naboru podatkov, ki sem jih pridobila s spletnega naslova \url{https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset}.
+\subsection{Vrednotenje na podatkovni množici}
+Delovanje nevronske mreže sem preverila na podatkovni množici, ki sem jih pridobila s spletnega naslova \url{https://archive.ics.uci.edu/ml/datasets/bike+sharing+dataset}.
 
  Vse fun\-kci\-je, ki sem jih uporabila pri analizi delovanja nevronske mreže so vključene v nalogo in se nahajajo v prilogi~\ref{priloga}.
 %
-\subsubsection{Nabor podatkov o izposoji koles}
-Nabor vsebuje informacije o številu izposojenih koles za posamezen dan med letoma $2011$ in $2012$. Število izposojenih koles je odvisno od naslednjih vhodnih podatkov: 
+\subsubsection{Podatkovna množica o izposoji koles}
+Podatkovna množica vsebuje informacije o številu izposojenih koles za posamezen dan med letoma $2011$ in $2012$. Število izposojenih koles je odvisno od naslednjih vhodnih podatkov: 
 \begin{itemize}
 	\item letni čas: $1$ - zima, $2$ - pomlad, $3$ - poletje, $4$ - jesen
 	\item leto: $0$ - leto $2011$, $1$ - leto $2012$
@@ -799,12 +799,27 @@ Uporabniki koles so razdeljeni na občasne in registrirane uporabnike, tako poda
 	\item vsota vseh uporabnikov (občasnih in registriranih).
 \end{itemize}
 
-Nabor podatkov vsebuje informacije o izposoji koles za $731$ dni, od tega sem $600$ primerov uporabila za učenje, na $131$ primerih pa sem testirala delovanje nevronske mreže.
+Nabor podatkov vsebuje informacije o izposoji koles za $731$ dni, od tega sem $600$ primerov uporabila za učenje, na $131$ primerih pa sem preverjala delovanje nevronske mreže.
 %
 \subsubsection{Analiza delovanja nevronske mreže}
-Delovanje mreže sem analizirala s pomočjo povprečne absolutne nakake. Le to sem izračunala tako, da sem za vsak testni primer izračunala napako med želeno vrednostjo in vrednostjo napovedano s pomočjo nevronske mreže, nato pa sem vzela povprečje teh napak za vse testne primere. Da bi bili izračuni kar se da natančni, sem učenje mreže ponovila na petdesetih različnih začetnih utežeh in na koncu izračunala povprečje vseh napak. Napako sem računala posebej za vsakega izmed izhodnih parametrov.
+Delovanje mreže sem preverjala s pomočjo povprečne absolutne nakake. Namesto kvadrata napake sem izbrala absolutno napako, že vrednosti absolutne napake namreč dovolj dobro pokažejo lastnosti mreže, posledično sem se izognila prevelikim številom. Povprečno asolutno napako sem izračunala tako, da sem za vsak testni primer izračunala napako med želeno vrednostjo in vrednostjo napovedano s pomočjo nevronske mreže. Formula za izračun napake močno spominja na enačbo \eqref{eq:napaka}, za $l$-ti učni primer se enačba glasi:
+%
+\begin{equation*}
+E(l) = |d(l)-Y(l)|\text.
+\end{equation*}
+%
+ Nato sem vzela povprečje teh napak za vse testne primere in tako dobila povprečno absolutno napako sledeče:
+ %
+ \begin{equation}
+ E_{povp}(l) = \frac{1}{n}\sum_{i=1}^{n}|d(l)-Y(l)|\text,
+ \end{equation}
+ %
+ kjer $n$ predstavlja število testnih primerov.
+ 
+  Da bi bili izračuni kar se da natančni, sem učenje mreže ponovila na petdesetih različnih začetnih utežeh in na koncu izračunala povprečje vseh napak. Napako sem računala posebej za vsakega izmed izhodnih parametrov.
 
-Da je bilo učenje nevronske mreže uspešno, pokažemo s funkcijo\-  \texttt{learned\-\_vs\-\_unlearned}. Funkcija za n primerov primerja povprečno absolutno napako za naučeno in nenaučeno mrežo. Če je napaka pri naučeni mreži manjša, v tabelo na mesto ustreznega izhodnega parametra prištejemo vrednost $1$, če je napaka manjša pri nenaučeni mreži vrednost $1$ odštejemo.
+Uspešnost učenja nevronske mreže pokažemo s pomočjo funkcije
+ \texttt{learned\-\_vs\-\_unlearned}. Funkcija za $n$ primerov primerja povprečno absolutno napako za naučeno in nenaučeno mrežo. Če je napaka pri naučeni mreži manjša, v tabelo na mesto ustreznega izhodnega parametra prištejemo vrednost $1$, če je napaka manjša pri nenaučeni mreži vrednost $1$ odštejemo.
 
 Če funkcijo poženemo na $50$ različnih začetnih utežeh pri topologiji z enim skritim slojem z desetimi nevroni in stopnjo učenja $0.5$, funkcija vrne naslednjo tabelo:
 \texttt{val count : int array = [|50; 50; 50|]}. To pomeni, da je bilo učenje uspešno, saj je bila napaka pri napovedi z naučenimi utežmi vsakokrat manjša kot napaka pri napovedi z nenaučenimi utežmi.
@@ -818,7 +833,9 @@ Da je bilo učenje nevronske mreže uspešno, pokažemo s funkcijo\-  \texttt{le
 	\caption{Vpliv stopnje učenja na učenje nevronske mreže}
 	\label{fig:rate}
 \end{figure}
-Tako me je zanimalo, kako stopnja učenja vpliva na delovanje nevronske mreže. Pri fiksni topologiji z eno skrito plastjo in desetimi nevroni v njej sem spreminjala stopnjo učenja. Iz grafa~\ref{fig:rate}, ki prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti od stopnje učenja, je razvidno, da je napaka najmanjša, pri vrednostih $\eta = 0.5$ in $\eta = 1$, tako bo mreža delovala najbolje, če za $\eta$ izberemo število med tema dvema vrednostima.
+
+\subsubsection{Analiza vplivaparametrov pri učenju nevronske mreže}
+Zanimalo me je, kako stopnja učenja vpliva na delovanje nevronske mreže. Pri fiksni topologiji z eno skrito plastjo in desetimi nevroni v njej sem spreminjala stopnjo učenja. Iz grafa~\ref{fig:rate}, ki prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti od stopnje učenja, je razvidno, da je napaka najmanjša, pri vrednostih $\eta = 0.5$ in $\eta = 1$.
 
 \begin{figure}[!ht]
 	\centering
@@ -831,7 +848,24 @@ Tako me je zanimalo, kako stopnja učenja vpliva na delovanje nevronske mreže. 
 Nadalje sem analizirala, kakšna bi bila najbolj optimalna topologija za delovanje nevronske mreže. To sem testirala tako, da sem pri fiksni stopnji učenja $\eta = 0.5$ spreminjala število skritih nevronov. Ostala pa sem le pri enem sloju skritih nevronov, saj gre za majhen podatkovni nabor in bi bila topologija z več skritimi sloji že prekompleksna, kar bi se pokazalo z slabim delovanjem nevronske mreže in posledično veliko napako pri napovedovanju. 
 Graf~\ref{fig:lay} prikazuje povprečno absolutno napako pri petdesetih ponovitvah učenja v odvisnosti števila skritih nevronov. Iz grafa je razvidno, da je napaka najmanjša pri topologiji z med pet in deset nevroni v skritem sloju.
 
-
+Namesto na testni podatkovni množici lahko napako izračunamo na učni podatkovni množici, tako dobimo učno napako. Graf~\ref{fig:rate_l} prikazuje vpliv stopnje učenja na učno napako, medtem ko graf~\ref{fig:lay_l} prikazuje vpliv števila skritih nevronov. Če omenjena grafa primerjamo z grafoma~\ref{fig:rate} in~\ref{fig:lay}, ugotovimo, da je pri manj kot sedmih nevronih v skritem sloju učna napaka manjhna, testna pa velika. Tako v omenjenem primeru pride do preprileganja. Podobno do preprileganja pride, v kolikor za parameter $\eta$ izberemo vrednosti večje od $50$. Do podprilegnja pride, ko je že učna napaka velika, to se zgodi pri topologijah z več kot $15$ nevroni v skritem sloju.
+%
+\begin{figure}[!h]
+	\centering
+	\includegraphics[width=1\textwidth]{rate_learn.jpg}
+	\caption{Vpliv stopnje učenja na učenje nevronske mreže}
+	\label{fig:rate_l}
+\end{figure}
+%
+\begin{figure}[!ht]
+	\centering
+	\includegraphics[width=1\textwidth]{lay_learned.jpg}
+	\caption{Vpliv števila nevronov v enem skritem sloju na učenje nevronske mreže}
+	\label{fig:lay_l}
+\end{figure}
+%
+Zaključimo lahko, da bo mreža najbolje delovala, če bo skriti sloj vseboval okoli $10$ nevronov, za stopnjo učenja pa bomo izbrali vrednost med $0.5$ in $0.1$.
+%
 \section{Priloga} \label{priloga}
 \inputminted{ocaml}{nevronske_mreze.ml}
 

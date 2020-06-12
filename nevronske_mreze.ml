@@ -1,15 +1,19 @@
 (* NEVRONSKA MREŽA *)
 
-(*aktivacijska funkcija za posamezen nevron - sigmoida *)
+(*pomožna funkcija: 
+	aktivacijska funkcija za posamezen nevron - sigmoida *)
 let sigmoid neuron =
 	1. /. (1. +. exp(-. neuron))
 		
-(*odvod sigmoide za posamezen izhodni nevron, sprejme output - to kar mreža 
-dobi odvod sigmoide je f'(x) = f(x)*(1-f(x) *)
+(*pomožna funkcija:
+odvod sigmoide za posamezen izhodni nevron, sprejme output - 
+to kar mreža dobi odvod sigmoide je f'(x) = f(x)*(1-f(x)),
+funkcijo x -> x(1-x) uporabimo na vrednostih f(x) *)
 let d_sigmoid output =
 	(output)*.( 1. -. output)  
 
-(*aktivacijska funkcija za sloj, funct je funkcija aktivacije, 
+(*pomožna funkcija:
+aktivacijska funkcija za sloj, funct je funkcija aktivacije, 
 ki jo želimo uporabiti *)
 let activation_layer funct layer =
 	Array.map funct layer
@@ -246,8 +250,8 @@ izhod:
 	done;
 	weights 
 	
-(* funkcija, ki nauči mrežo (uteži) pravilnega delovanja, 
-sprejme matriko z utežmi
+(*funkcija, ki nauči mrežo (uteži) pravilnega delovanja
+na podanih začetnih utežeh
 vhod:
  - input_array: tabela vhodnih vektorjev
  - output_array: tabela pripadajočih željenih izhodnih vektorjev
@@ -281,7 +285,7 @@ let train_with_input_weights input_array output_array
 	done;
 	w 
  
-(* funkcija, ki napove vrednost pri testnem primeru
+(*funkcija, ki napove vrednost pri testnem primeru
 vhod:
  - input: vhodna tabela
  - network: matrika, ki predstavlja nevrone v mreži
@@ -300,7 +304,7 @@ let predict input network weights act_fun =
 	done;
 	network.(n-1)
 	
-(* funkcija, ki napove vrednost pri testnem primeru
+(*funkcija, ki napove vrednost pri testnem primeru
 vhod:
 - test_input: tabela vhodnih vektorjev
 - test_output: tabela izhodnih vektorjev
@@ -336,8 +340,8 @@ let evaluate test_input test_output weights network_topology
 	e_m
 	
 	
-(*n-krat požene evaluate na n različnih mrežah, 
-n krat nauči in pogleda napako
+(*funkcija, ki n-krat požene evaluate na n 
+različnih mrežah, n krat nauči in pogleda napako
 vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -370,8 +374,8 @@ let analysis_error train_input train_output test_input
 	let e_m = mean e in
 	e_m
 	
-(*n-krat požene evaluate na n različnih mrežah, 
-mreže ne nauči, le izračuna napako
+(*funkcija, ki n-krat požene evaluate na n 
+različnih mrežah, mreže ne nauči, le izračuna napako
 vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -404,8 +408,9 @@ let analysis_unlearned train_input train_output test_input
 	let e_m = mean e in
 	e_m
 
-(*prešteje, kolikorat je bilo učenje z naučeno mrežo boljše 
- (napaka je bila manjša), kot učenje z nenaučeno mrežo
+(*funkcija, ki prešteje, kolikorat je bilo 
+učenje z naučeno mrežo boljše (napaka je bila manjša), 
+kot učenje z nenaučeno mrežo
  vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -448,8 +453,8 @@ let learned_vs_unlearned train_input train_output test_input
 	count
 	
 	
-(* za različne stopnje učenja izračuna povprečno
-absolutno napako pri fiksni topologiji
+(*funkcija, ki za različne stopnje učenja izračuna 
+povprečno absolutno napako pri fiksni topologiji
 vhod:
 - r_vect: tabela vrednosti stopenj učenja
 - train_input: tabela vhodnih učnih vektorjev
@@ -480,8 +485,9 @@ let rate_analysis r_vect train_input train_output test_input
 	done;
 	r
 	
-(* za različna števila nevronov v skritem sloju izračuna 
-povprečno absolutno napako pri fiksni stopnji učenja
+(*funkcija, ki za različna števila nevronov v skritem 
+sloju izračuna povprečno absolutno napako 
+pri fiksni stopnji učenja
 vhod:
 - min_hidden: najmanjšte št. sktirih nevronov
 - n: število za kolikor želimo povečati min_hidden

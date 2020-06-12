@@ -190,7 +190,7 @@ f(x) = \frac{1}{1+e^{-x}} \quad \text{in} \quad h(x) = \tanh(x) = \frac{e^x-e^{-
 %
 Kot je razvidno z grafov (slika~\ref{fig:sigmoid}) je na intervalu $(-2,2)$ naklon obeh funkcij velik, zato na omenjenem intervalu mreža pri napovedovanju da jasne rezultate in učenje poteka hitro. Po drugi strani pa je zunaj tega intervala odvod majhen, tako je učenje mreže in posledično napovedovanje zelo počasno in nenatančno. 
 
-Kot bomo videli v nadaljevanju, pri učenju mreže z vzvratnim razširjanjem napake potrebujemo tudi odvod funkcije aktivacije, saj vpliva na posodabljanje uteži. Odvod funkcije aktivacije lahko pri zgornjih dveh funkcijah izrazimo z $f(x)$ oziroma $h(x)$ na naslednji način:
+Kot bomo videli v nadaljevanju, pri učenju mreže z vzvratnim razširjanjem napake potrebujemo tudi odvod funkcije aktivacije, saj le ta vpliva na posodabljanje uteži. Odvod uporabimo na že izračunanih stanjih nevronov, pri zgornijih dveh sigmoidnih funkcijah lahko preprosto izrazimo z $f(x)$ oziroma $h(x)$ na naslednji način:
 %
 \begin{equation}
 f'(x) = \frac{e^{-x}}{(1+e^{-x})^2} = f(x)(1-f(x))

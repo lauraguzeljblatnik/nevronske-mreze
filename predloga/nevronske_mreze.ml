@@ -1,22 +1,27 @@
 (* NEVRONSKA MREŽA *)
 
-(*aktivacijska funkcija za posamezen nevron - sigmoida *)
+(*pomožna funkcija: 
+	aktivacijska funkcija za posamezen nevron - sigmoida *)
 let sigmoid neuron =
 	1. /. (1. +. exp(-. neuron))
 		
-(*odvod sigmoide za posamezen izhodni nevron, sprejme output - to kar mreža 
-dobi odvod sigmoide je f'(x) = f(x)*(1-f(x) *)
+(*pomožna funkcija:
+	odvod sigmoide za posamezen izhodni nevron, sprejme output - 
+	to kar mreža izračuna. Odvod sigmoide je f'(x) = f(x)*(1-f(x)),
+	funkcijo x -> x(1-x) uporabimo na vrednostih f(x) *)
 let d_sigmoid output =
 	(output)*.( 1. -. output)  
 
-(*aktivacijska funkcija za sloj, funct je funkcija aktivacije, 
-ki jo želimo uporabiti *)
+(*pomožna funkcija:
+	aktivacijska funkcija za sloj(vektor), funct je funkcija 
+	aktivacije, ki jo želimo na uporabiti *)
 let activation_layer funct layer =
 	Array.map funct layer
 	
-(*funkcija kombinacije za sloj in pripadajoče uteži, 
-zmnoži vektor (sloj nevronov) z matriko uteži,
-vrne vektor*)
+(*pomožna funkcija:
+	funkcija kombinacije za sloj in pripadajoče uteži, 
+	zmnoži vektor (sloj nevronov) z matriko uteži,
+	vrne vektor*)
 let combination_f layer weights = 
 	let w1 = Array.length weights.(0) and
 		w2 = Array.length weights and
@@ -33,22 +38,31 @@ let combination_f layer weights =
 	comb
 	)
 
-(*ustvari float matriko z naključnimi utežmi velikosti nxm,
- elementi so manjši od bound - float, spodnja meja je 0.,
- m je št nevronov v prejšnjem sloju, n je št nevronov v tem sloju, 
- oba int vrne matriko mxn*)	
+(*pomožna funkcija, ki ustvari float matriko z naključnimi 
+	utežmi velikosti nxm,
+vhod:
+- n: št. nevronov v tem sloju
+- m: št. nevronov v prejšnjem sloju
+- bound: vrednosti v matriki so med bound in (-bound)
+izhod: 
+- matrika uteži velikosti mxn *)	
 let rand_weights n m bound =
 	Array.init n
 	(fun _ 
 		-> Array.init m (fun _ 
 			-> (Random.float 2.*.bound)-.bound))
 
-(*vrne največji element v tabeli*)		
+(*pomožna funkcija:
+	vrne največji element v tabeli*)		
 let max_el arr = Array.fold_left max arr.(0) arr
 	
-(*ustvari tabelo matrik naključnih uteži s pravimi velikostmi, 
-sprejme vektor, ki opisuje topologijo nevronske mreže - int array,
- in zgornjo mejo teh uteži - float*)
+(*pomožna funkcija, ki ustvari tabelo matrik naključnih 
+uteži s pravimi velikostmi
+vhod:
+- network_topology: vektor, ki opisuje topologijo 
+	nevronske mreže - int array,
+- bound: zgornja meja uteži - float
+izhod: tabela matrik naključnih uteži prave velikosti*)
 let create_weights_matrix network_topology bound =
 	let n = (Array.length network_topology) - 1 in
 	let weights = Array.make n [||] in
@@ -59,10 +73,12 @@ let create_weights_matrix network_topology bound =
 	done;
 	weights
 	
-(*ustvari float matriko, ki predstavlja nevrone v mreži. 
-Sprejme int array, ki opisuje topologijo mreže
-Ima velikost mxn, kjer je m št slojev in n max št nevronov v sloju,
-na začetku so vse vrednosti 0.*)
+(*funkcija, ki ustvari float matriko, ki predstavlja nevrone v mreži
+vhod:
+- network_topology: tabela, ki opisuje topologijo mreže
+izhod: 
+- float matrika velikosti mxn, kjer je m št. slojev in n max 
+št. nevronov v sloju, na začetku so vse vrednosti v matriki 0.*)
 let initialize_network network_topology =	
 	let layers_n = Array.length network_topology and
 		max_layer = max_el network_topology in
@@ -71,9 +87,13 @@ let initialize_network network_topology =
 
 (*delta = dE/dA*)
 	
-(*izračuna napako za izhodni sloj, vrne vektor*)	
-(*d je željen output, y to kar mreža dobi, 
-act_der je odvod funkcije aktivacije*)
+(*funkcija, ki izračuna vektor delta za izhodni sloj
+vhod:
+- d: tabela z želenimi izhodi
+- y: tabela z izhodnimi vrenostmi mreže 
+- act_der: odvod funkcije aktivacije
+izhod: 
+- tabela vrednosti delta *)
 let delta_output act_der d y =
 	let d0 = Array.length d and
 	y0 = Array.length y in
@@ -86,10 +106,13 @@ let delta_output act_der d y =
 	e
 	)
 		
-(*izračuna napako za skrite sloje,
-w so uteži enega sloja naprej(že popravljene!), 
-h_m so izhodi v tem sloju, d_out je delta naslednjega sloja,
-vrne vektor*)
+(*funkcija, ki izračuna vektor delta za skrite sloje
+vhod:
+- w: matrika uteži ene sloj naprej(že popravljene!)
+- h_m: tabela izhodov v v sloju kjer računamo delto
+- d_out: tabela delta v naslednjem sloju
+izhod: 
+- tabela vrednosti delta *)
 let delta_hidden w h_m d_out act_der = 
 	let a = Array.length h_m and
 		d_0 = Array.length d_out in 
@@ -103,10 +126,14 @@ let delta_hidden w h_m d_out act_der =
 	done;
 	e
 
-(*w so uteži, ki jih popravljaš, rate je stopnja učenja, 
-delta je error - pomožne funkcije,
-input je vektor nevronov en sloj pred utežjo (eno stopnjo nazaj),
-vrne popravljene uteži *)
+(*funkcija, ki ustrezno popravi vrednosti v matriki uteži
+vhod:
+- w: matrika uteži, ki jo spreminjamo
+- rate: stopnja učenja
+- delta: ustrezen tabela napake dE/dA
+- input: tabela vhodnih podatkov/vrednosti 
+izhod:
+- ustrezno popravljene uteži *)
 let update_weights w rate delta input =
 	let d_0 = Array.length delta and
 		in_0 = Array.length input in
@@ -120,7 +147,7 @@ let update_weights w rate delta input =
 
 (*funkcija, ki vrne povprečje danih vhodnih podatkov
 vhod: matrika s podatki
-izhod: vektor z povprečji po stolpcih 
+izhod: vektor s povprečji po stolpcih 
 *)	
 let mean data =
 	let n = Array.length data in
@@ -137,7 +164,9 @@ let mean data =
 	m
 	
 (*funkcija, ki vrne standardni odklon danih vhodnih podatkov
-vhod: matrika s podatki
+vhod: 
+- data: matrika s podatki 
+- mean: povprečje podatkov
 izhod: vektor standardnih odklonov po stolpcih 
 *)	
 let std data mean = 
@@ -155,9 +184,12 @@ let std data mean =
 	s
 	
 	
-(*normalizira podatke z z-score normalizacijo
-vhod: tabela, povprečje in standardni odklon 
-izhod: normalizirana tabela
+(*funkcija, ki normalizira podatke z z-score normalizacijo
+vhod:
+- a: tabela z vektorji podatki
+- mean: vekotr povprečja podatkov
+- std_dev: vektor standardnega odklona podatkov
+izhod: normalizirana tabela vektorjev podatkov
 *)
 let norm_z_score a mean std_dev =
 	let n = Array.length a in
@@ -167,9 +199,12 @@ let norm_z_score a mean std_dev =
 	done;
 	arr
 	
-(*denormalizira podatke z z-score normalizacijo
-vhod: tabela, povprečje in standardni odklon 
-izhod: denormalizirana tabela oz. prave vrednosti
+(*funkcija, ki denormalizira podatke z z-score normalizacijo
+vhod: 
+- a: tabela z vektorji podatkov
+- mean: vekotr povprečja podatkov
+- std_dev: vektor standardnega odklona podatkov
+izhod: denormalizirana tabela vektorjev podatkov
 *)
 let denorm_z_score a mean std_dev =
 	let n = Array.length a in
@@ -180,16 +215,17 @@ let denorm_z_score a mean std_dev =
 	arr
 
 (*funkcija, ki sprejme en učni primer in ustrezno popravi uteži
-input: x - vhodni vektor
-	d - željen izhodni vektor
-	network - matrika nevronov v mreži, 
-		velikosti (št. slojev) x (max nevronov v sloju), 
-		vsi el. so 0.
-	weights - tabela matrik uteži v mreži
-	rate - stopnja učenja
-	act_fun - funkcija aktivacije
-	act_der - odvod funkcije aktivacije
-output: popravljene uteži*)
+vhod: 
+- x: vhodni vektor
+- d: željen izhodni vektor
+- network: matrika nevronov v mreži,
+	velikosti (št. slojev) x (max nevronov v sloju), 
+	vsi el. so 0.
+- weights: tabela matrik uteži v mreži
+- rate: stopnja učenja
+- act_fun: funkcija aktivacije
+- act_der: odvod funkcije aktivacije
+izhod: popravljene uteži*)
 let learning_example x d network weights rate act_fun act_der = 
 	let n = Array.length network in
 		network.(0) <- x;
@@ -246,8 +282,8 @@ izhod:
 	done;
 	weights 
 	
-(* funkcija, ki nauči mrežo (uteži) pravilnega delovanja, 
-sprejme matriko z utežmi
+(*funkcija, ki nauči mrežo (uteži) pravilnega delovanja
+na podanih začetnih utežeh
 vhod:
  - input_array: tabela vhodnih vektorjev
  - output_array: tabela pripadajočih željenih izhodnih vektorjev
@@ -281,7 +317,7 @@ let train_with_input_weights input_array output_array
 	done;
 	w 
  
-(* funkcija, ki napove vrednost pri testnem primeru
+(*funkcija, ki napove vrednost pri testnem primeru
 vhod:
  - input: vhodna tabela
  - network: matrika, ki predstavlja nevrone v mreži
@@ -300,7 +336,7 @@ let predict input network weights act_fun =
 	done;
 	network.(n-1)
 	
-(* funkcija, ki napove vrednost pri testnem primeru
+(*funkcija, ki napove vrednost pri testnem primeru
 vhod:
 - test_input: tabela vhodnih vektorjev
 - test_output: tabela izhodnih vektorjev
@@ -336,8 +372,8 @@ let evaluate test_input test_output weights network_topology
 	e_m
 	
 	
-(*n-krat požene evaluate na n različnih mrežah, 
-n krat nauči in pogleda napako
+(*funkcija, ki n-krat požene evaluate na n 
+različnih mrežah, n krat nauči in pogleda napako
 vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -370,8 +406,8 @@ let analysis_error train_input train_output test_input
 	let e_m = mean e in
 	e_m
 	
-(*n-krat požene evaluate na n različnih mrežah, 
-mreže ne nauči, le izračuna napako
+(*funkcija, ki n-krat požene evaluate na n 
+različnih mrežah, mreže ne nauči, le izračuna napako
 vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -404,8 +440,9 @@ let analysis_unlearned train_input train_output test_input
 	let e_m = mean e in
 	e_m
 
-(*prešteje, kolikorat je bilo učenje z naučeno mrežo boljše 
- (napaka je bila manjša), kot učenje z nenaučeno mrežo
+(*funkcija, ki prešteje, kolikorat je bilo 
+učenje z naučeno mrežo boljše (napaka je bila manjša), 
+kot učenje z nenaučeno mrežo
  vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -448,8 +485,8 @@ let learned_vs_unlearned train_input train_output test_input
 	count
 	
 	
-(* za različne stopnje učenja izračuna povprečno
-absolutno napako pri fiksni topologiji
+(*funkcija, ki za različne stopnje učenja izračuna 
+povprečno absolutno napako pri fiksni topologiji
 vhod:
 - r_vect: tabela vrednosti stopenj učenja
 - train_input: tabela vhodnih učnih vektorjev
@@ -480,8 +517,9 @@ let rate_analysis r_vect train_input train_output test_input
 	done;
 	r
 	
-(* za različna števila nevronov v skritem sloju izračuna 
-povprečno absolutno napako pri fiksni stopnji učenja
+(*funkcija, ki za različna števila nevronov v skritem 
+sloju izračuna povprečno absolutno napako 
+pri fiksni stopnji učenja
 vhod:
 - min_hidden: najmanjšte št. sktirih nevronov
 - n: število za kolikor želimo povečati min_hidden

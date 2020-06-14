@@ -1,4 +1,4 @@
-(* NEVRONSKA MREŽA *)
+(* IMPLEMENTACIJA NEVRONSKE MREŽE *)
 
 (*pomožna funkcija: 
 	aktivacijska funkcija za posamezen nevron - sigmoida *)
@@ -90,7 +90,7 @@ let initialize_network network_topology =
 (*funkcija, ki izračuna vektor delta za izhodni sloj
 vhod:
 - d: tabela z želenimi izhodi
-- y: tabela z izhodnimi vrenostmi mreže 
+- y: tabela z izhodnimi vrednostmi mreže 
 - act_der: odvod funkcije aktivacije
 izhod: 
 - tabela vrednosti delta *)
@@ -108,8 +108,8 @@ let delta_output act_der d y =
 		
 (*funkcija, ki izračuna vektor delta za skrite sloje
 vhod:
-- w: matrika uteži ene sloj naprej(že popravljene!)
-- h_m: tabela izhodov v v sloju kjer računamo delto
+- w: matrika uteži en sloj naprej (že popravljene uteži!)
+- h_m: tabela izhodov v sloju, kjer računamo delto
 - d_out: tabela delta v naslednjem sloju
 izhod: 
 - tabela vrednosti delta *)
@@ -130,7 +130,7 @@ let delta_hidden w h_m d_out act_der =
 vhod:
 - w: matrika uteži, ki jo spreminjamo
 - rate: stopnja učenja
-- delta: ustrezen tabela napake dE/dA
+- delta: ustrezna tabela napake dE/dA
 - input: tabela vhodnih podatkov/vrednosti 
 izhod:
 - ustrezno popravljene uteži *)
@@ -187,7 +187,7 @@ let std data mean =
 (*funkcija, ki normalizira podatke z z-score normalizacijo
 vhod:
 - a: tabela z vektorji podatki
-- mean: vekotr povprečja podatkov
+- mean: vektor povprečja podatkov
 - std_dev: vektor standardnega odklona podatkov
 izhod: normalizirana tabela vektorjev podatkov
 *)
@@ -202,7 +202,7 @@ let norm_z_score a mean std_dev =
 (*funkcija, ki denormalizira podatke z z-score normalizacijo
 vhod: 
 - a: tabela z vektorji podatkov
-- mean: vekotr povprečja podatkov
+- mean: vektor povprečja podatkov
 - std_dev: vektor standardnega odklona podatkov
 izhod: denormalizirana tabela vektorjev podatkov
 *)
@@ -217,7 +217,7 @@ let denorm_z_score a mean std_dev =
 (*funkcija, ki sprejme en učni primer in ustrezno popravi uteži
 vhod: 
 - x: vhodni vektor
-- d: željen izhodni vektor
+- d: želen izhodni vektor
 - network: matrika nevronov v mreži,
 	velikosti (št. slojev) x (max nevronov v sloju), 
 	vsi el. so 0.
@@ -286,7 +286,7 @@ izhod:
 na podanih začetnih utežeh
 vhod:
  - input_array: tabela vhodnih vektorjev
- - output_array: tabela pripadajočih željenih izhodnih vektorjev
+ - output_array: tabela pripadajočih želenih izhodnih vektorjev
  - network_topology: tabela s št. nevronov po slojih 
  - rate: stopnja učenja 
  - w: vhodne inicializirane uteži
@@ -373,7 +373,7 @@ let evaluate test_input test_output weights network_topology
 	
 	
 (*funkcija, ki n-krat požene evaluate na n 
-različnih mrežah, n krat nauči in pogleda napako
+različnih mrežah, n-krat nauči in pogleda napako
 vhod:
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev
@@ -521,7 +521,7 @@ let rate_analysis r_vect train_input train_output test_input
 sloju izračuna povprečno absolutno napako 
 pri fiksni stopnji učenja
 vhod:
-- min_hidden: najmanjšte št. sktirih nevronov
+- min_hidden: najmanjše št. skritih nevronov
 - n: število za kolikor želimo povečati min_hidden
 - train_input: tabela vhodnih učnih vektorjev
 - train_output: tabela vhodnih testnih vektorjev

@@ -117,8 +117,8 @@ let var_trained = variance test_examples  trained_weights topology sigmoid mean_
 
 (* let rate_ana = rate_analysis r_ana input out test_examples test_out topology sigmoid d_sigmoid *)
 
-(* let rate_ana_learning = rate_analysis r_ana input out input out topology sigmoid d_sigmoid *)
+let rate_ana_learning = rate_analysis r_ana input out input out topology sigmoid d_sigmoid
 
-let top_ana = topology_analysis 51 50 input out test_examples test_out sigmoid d_sigmoid 0.5
+(* let top_ana = topology_analysis 51 50 input out test_examples test_out sigmoid d_sigmoid 0.5 *)
 
-let top_ana_learning = topology_analysis 51 50 input out input out sigmoid d_sigmoid 0.5
+(* let top_ana_learning = topology_analysis 51 50 input out input out sigmoid d_sigmoid 0.5 *)
